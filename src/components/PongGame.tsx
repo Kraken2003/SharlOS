@@ -15,7 +15,9 @@ export default function PongGame({ onClose }: PongGameProps) {
     ballVelY: 3,
     playerScore: 0,
     aiScore: 0,
-    gameRunning: false
+    gameRunning: false,
+    playerVelocity: 0,
+    keysPressed: { up: false, down: false }
   });
 
   const CANVAS_WIDTH = 600;
@@ -29,6 +31,33 @@ export default function PongGame({ onClose }: PongGameProps) {
 
     setGameState(prev => {
       let newState = { ...prev };
+
+      // Handle player movement with smooth acceleration
+      const acceleration = 0.8;
+      const friction = 0.6;
+      const maxSpeed = 8;
+
+      if (newState.keysPressed.up) {
+        newState.playerVelocity -= acceleration;
+      } else if (newState.keysPressed.down) {
+        newState.playerVelocity += acceleration;
+      } else {
+        // Apply friction
+        if (newState.playerVelocity > 0) {
+          newState.playerVelocity = Math.max(0, newState.playerVelocity - friction);
+        } else if (newState.playerVelocity < 0) {
+          newState.playerVelocity = Math.min(0, newState.playerVelocity + friction);
+        }
+      }
+
+      // Limit max speed
+      newState.playerVelocity = Math.max(-maxSpeed, Math.min(maxSpeed, newState.playerVelocity));
+
+      // Update player position
+      newState.playerY += newState.playerVelocity;
+
+      // Keep player paddle in bounds
+      newState.playerY = Math.max(0, Math.min(CANVAS_HEIGHT - PADDLE_HEIGHT, newState.playerY));
 
       // Move ball
       newState.ballX += newState.ballVelX;
@@ -88,26 +117,64 @@ export default function PongGame({ onClose }: PongGameProps) {
     });
   }, [gameState.gameRunning]);
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (!gameState.gameRunning) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const mouseY = e.clientY - rect.top;
-    
-    setGameState(prev => ({
-      ...prev,
-      playerY: Math.max(0, Math.min(CANVAS_HEIGHT - PADDLE_HEIGHT, mouseY - PADDLE_HEIGHT / 2))
-    }));
-  }, []);
+    switch (e.key) {
+      case 'ArrowUp':
+      case 'w':
+      case 'W':
+        e.preventDefault();
+        setGameState(prev => ({
+          ...prev,
+          keysPressed: { ...prev.keysPressed, up: true }
+        }));
+        break;
+      case 'ArrowDown':
+      case 's':
+      case 'S':
+        e.preventDefault();
+        setGameState(prev => ({
+          ...prev,
+          keysPressed: { ...prev.keysPressed, down: true }
+        }));
+        break;
+    }
+  }, [gameState.gameRunning]);
+
+  const handleKeyUp = useCallback((e: KeyboardEvent) => {
+    if (!gameState.gameRunning) return;
+
+    switch (e.key) {
+      case 'ArrowUp':
+      case 'w':
+      case 'W':
+        e.preventDefault();
+        setGameState(prev => ({
+          ...prev,
+          keysPressed: { ...prev.keysPressed, up: false }
+        }));
+        break;
+      case 'ArrowDown':
+      case 's':
+      case 'S':
+        e.preventDefault();
+        setGameState(prev => ({
+          ...prev,
+          keysPressed: { ...prev.keysPressed, down: false }
+        }));
+        break;
+    }
+  }, [gameState.gameRunning]);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    canvas.addEventListener('mousemove', handleMouseMove);
-    return () => canvas.removeEventListener('mousemove', handleMouseMove);
-  }, [handleMouseMove]);
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [handleKeyDown, handleKeyUp]);
 
   useEffect(() => {
     if (!gameState.gameRunning) return;
@@ -167,7 +234,9 @@ export default function PongGame({ onClose }: PongGameProps) {
       ballVelY: 3,
       playerScore: 0,
       aiScore: 0,
-      gameRunning: false
+      gameRunning: false,
+      playerVelocity: 0,
+      keysPressed: { up: false, down: false }
     });
   };
 
@@ -197,7 +266,7 @@ export default function PongGame({ onClose }: PongGameProps) {
           ref={canvasRef}
           width={CANVAS_WIDTH}
           height={CANVAS_HEIGHT}
-          className="border border-yellow-400/30 cursor-none"
+          className="border border-yellow-400/30"
         />
 
         <div className="mt-4 flex gap-4">
@@ -225,7 +294,8 @@ export default function PongGame({ onClose }: PongGameProps) {
         </div>
 
         <div className="mt-4 text-xs text-yellow-400/60">
-          Move mouse to control paddle
+          <div>W/↑ : Move Up</div>
+          <div>S/↓ : Move Down</div>
         </div>
       </div>
     </div>

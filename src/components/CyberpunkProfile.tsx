@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import TetrisGame from './TetrisGame';
 import PongGame from './PongGame';
+import SpaceInvadersGame from './SpaceInvadersGame';
+import IPOD from './IPOD';
 
 export default function CyberpunkProfile() {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -10,6 +12,7 @@ export default function CyberpunkProfile() {
   const [statusText, setStatusText] = useState('ONLINE');
   const [showTetris, setShowTetris] = useState(false);
   const [showPong, setShowPong] = useState(false);
+  const [showSpaceInvaders, setShowSpaceInvaders] = useState(false);
 
   const statusOptions = ['ONLINE', 'CODING', 'BUILDING', 'SHIPPING'];
   
@@ -105,6 +108,7 @@ export default function CyberpunkProfile() {
       {/* Games */}
       {showTetris && <TetrisGame onClose={() => setShowTetris(false)} />}
       {showPong && <PongGame onClose={() => setShowPong(false)} />}
+      {showSpaceInvaders && <SpaceInvadersGame onClose={() => setShowSpaceInvaders(false)} />}
 
       {/* Background Effects */}
       <div className="fixed inset-0 bg-gradient-to-br from-black via-yellow-900/10 to-black"></div>
@@ -213,6 +217,12 @@ export default function CyberpunkProfile() {
                   >
                     ▶ PONG.EXE
                   </button>
+                  <button
+                    onClick={() => setShowSpaceInvaders(true)}
+                    className="w-full bg-red-400/10 border border-red-400/50 p-2 text-red-400 hover:bg-red-400/20 transition-all text-xs"
+                  >
+                    ▶ SPACE_INVADERS.EXE
+                  </button>
                 </div>
               </div>
             </div>
@@ -222,7 +232,7 @@ export default function CyberpunkProfile() {
               {/* Navigation */}
               <div className="border border-yellow-400/30 bg-black/80 backdrop-blur-sm p-4 mb-6">
                 <div className="flex flex-wrap gap-4">
-                  {['overview', 'capabilities', 'timeline', 'events', 'predictions', 'contact'].map((tab) => (
+                  {['overview', 'capabilities', 'timeline', 'events', 'predictions', 'ipod', 'contact'].map((tab) => (
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
@@ -490,9 +500,9 @@ export default function CyberpunkProfile() {
                           </div>
                           <p className="text-cyan-300 text-sm mb-3">{pred.prediction}</p>
                           <div className="w-full bg-gray-900 h-2 border border-gray-700">
-                            <div 
+                            <div
                               className="h-2 transition-all duration-1000"
-                              style={{ 
+                              style={{
                                 width: `${pred.confidence}%`,
                                 background: `linear-gradient(90deg, #ff4444, #ffff00, #00ff00)`,
                                 boxShadow: '0 0 10px rgba(255,255,0,0.5)'
@@ -503,6 +513,10 @@ export default function CyberpunkProfile() {
                       ))}
                     </div>
                   </div>
+                )}
+
+                {activeTab === 'ipod' && (
+                  <IPOD />
                 )}
 
                 {activeTab === 'contact' && (
