@@ -40,8 +40,13 @@ export default function Matrix({ onPillChoice }: MatrixProps) {
 
   return (
     <>
-      {/* Media query styles for hover-capable devices */}
+      {/* Media query styles for hover-capable devices and overflow fixes */}
       <style>{`
+        /* Prevent horizontal scrollbar */
+        html, body {
+          overflow-x: hidden;
+        }
+
         @media (hover: hover) {
           .pill-hover-area:hover {
             cursor: pointer;
@@ -53,7 +58,7 @@ export default function Matrix({ onPillChoice }: MatrixProps) {
           }
         }
       `}</style>
-      <div className="min-h-screen bg-black text-green-400 font-mono overflow-y-auto relative">
+      <div className="min-h-screen bg-black text-green-400 font-mono overflow-y-auto overflow-x-hidden relative">
       {/* Matrix Rain Background */}
       <div className="absolute inset-0 opacity-30 -z-20 pointer-events-none" style={{ top: '-24px' }}>
         {matrixRain.map((column, index) => (
@@ -256,14 +261,20 @@ export default function Matrix({ onPillChoice }: MatrixProps) {
 
         {/* Matrix Text */}
         <div className="text-center mb-8 max-w-4xl px-4 sm:px-0">
-          <div className="text-green-400 mb-4 overflow-x-auto whitespace-nowrap">
-            ╔═══════════════════════════════════════════════════════════════╗
+          <div className="text-green-400 mb-4 overflow-hidden">
+            <div className="text-xs sm:text-sm md:text-base whitespace-nowrap">
+              ╔═══════════════════════════════════════════════════════════════╗
+            </div>
           </div>
-          <div className="text-green-400 mb-2 overflow-x-auto whitespace-nowrap text-sm sm:text-base">
-            ║ This is your last chance. After this, there is no going back. ║
+          <div className="text-green-400 mb-2 overflow-hidden">
+            <div className="text-xs sm:text-sm md:text-base whitespace-nowrap">
+              ║ This is your last chance. After this, there is no going back. ║
+            </div>
           </div>
-          <div className="text-green-400 mb-4 overflow-x-auto whitespace-nowrap">
-            ╚═══════════════════════════════════════════════════════════════╝
+          <div className="text-green-400 mb-4 overflow-hidden">
+            <div className="text-xs sm:text-sm md:text-base whitespace-nowrap">
+              ╚═══════════════════════════════════════════════════════════════╝
+            </div>
           </div>
           
           <div className="space-y-2 mb-8 text-sm sm:text-base">
@@ -285,13 +296,6 @@ export default function Matrix({ onPillChoice }: MatrixProps) {
 
       </div>
 
-      {/* Bottom terminal line */}
-      <div className="absolute bottom-4 left-4 right-4 text-green-400 text-xs opacity-60">
-        <div className="flex justify-between">
-          <span>MATRIX_OS v1.0 | MORPHEUS_INTERFACE_ACTIVE</span>
-          <span>CHOICE_PROTOCOL: ENABLED</span>
-        </div>
-      </div>
     </div>
     </>
   );

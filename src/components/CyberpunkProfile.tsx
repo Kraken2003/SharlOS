@@ -5,7 +5,7 @@ import PongGame from './PongGame';
 
 export default function CyberpunkProfile() {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [glitchText, setGlitchText] = useState('TECHNOCRAT');
+  const [glitchText, setGlitchText] = useState('PRITHVI_CHOHAN');
   const [activeTab, setActiveTab] = useState('overview');
   const [statusText, setStatusText] = useState('ONLINE');
   const [showTetris, setShowTetris] = useState(false);
@@ -20,8 +20,8 @@ export default function CyberpunkProfile() {
 
     // Glitch effect for name
     const glitchInterval = setInterval(() => {
-      const original = 'TECHNOCRAT';
-      const glitched = original.split('').map(char => 
+      const original = 'PRITHVI_CHOHAN';
+      const glitched = original.split('').map(char =>
         Math.random() > 0.8 ? String.fromCharCode(33 + Math.floor(Math.random() * 94)) : char
       ).join('');
       setGlitchText(glitched);
@@ -44,102 +44,60 @@ export default function CyberpunkProfile() {
   }, []);
 
   const capabilities = [
-    { skill: 'Full-Stack Development', level: 95, color: '#00ff00' },
-    { skill: 'System Architecture', level: 88, color: '#00ffff' },
-    { skill: 'AI/ML Implementation', level: 82, color: '#ff00ff' },
-    { skill: 'DevOps & Cloud', level: 85, color: '#ffff00' },
-    { skill: 'Blockchain Tech', level: 75, color: '#ff4444' },
     { skill: 'Team Leadership', level: 90, color: '#4444ff' },
+    { skill: 'AI/ML Engineering', level: 95, color: '#ff6b35' },
+    { skill: 'Cloud Architecture', level: 85, color: '#4285f4' },
   ];
 
   const predictions = [
     {
-      topic: 'AI Singularity',
-      prediction: 'AGI breakthrough within 3-5 years, but true consciousness remains elusive for another decade',
-      confidence: 78,
-      timeline: '2027-2029'
+      topic: 'Sovereign AI for India',
+      prediction: 'India will lead in on-device AI with 120+ language support, making coding accessible to every Indian',
+      confidence: 95,
+      timeline: '2024-2026'
     },
     {
-      topic: 'Web3 Evolution',
-      prediction: 'Current crypto hype dies, real utility emerges in identity and ownership verification',
-      confidence: 85,
-      timeline: '2025-2026'
-    },
-    {
-      topic: 'Dev Tools',
-      prediction: 'AI-assisted coding becomes standard, junior dev roles transform into AI-trainer roles',
-      confidence: 92,
+      topic: 'On-Device AI Revolution',
+      prediction: 'Snapdragon X series with 45 TOPS NPU will make offline AI development mainstream',
+      confidence: 90,
       timeline: '2024-2025'
     },
     {
-      topic: 'Remote Work',
-      prediction: 'VR/AR finally reaches tipping point for remote collaboration, physical offices become rare',
-      confidence: 67,
-      timeline: '2026-2028'
-    }
-  ];
-
-  const projects = [
-    {
-      name: 'NEXUS_AI',
-      status: 'ACTIVE',
-      description: 'Neural interface for developer productivity',
-      tech: ['Python', 'TensorFlow', 'React'],
-      impact: 'HIGH'
+      topic: 'Multilingual Coding',
+      prediction: 'AI coding assistants will support native languages, breaking English-only barriers in tech',
+      confidence: 88,
+      timeline: '2024-2025'
     },
-    {
-      name: 'CRYPTOVAULT',
-      status: 'BETA',
-      description: 'Decentralized identity management',
-      tech: ['Solidity', 'Web3', 'IPFS'],
-      impact: 'MEDIUM'
-    },
-    {
-      name: 'CLOUDFORGE',
-      status: 'SHIPPED',
-      description: 'Infrastructure automation platform',
-      tech: ['Go', 'Kubernetes', 'AWS'],
-      impact: 'HIGH'
-    }
   ];
 
   const workTimeline = [
     {
-      year: '2024',
-      title: 'Founder & CEO',
-      company: 'NeuralSync Corp',
-      description: 'Building the future of human-AI collaboration',
-      tech: ['AI/ML', 'React', 'Python', 'Kubernetes'],
+      year: '2024-Present',
+      title: 'Co-Founder',
+      company: 'SyntX by OrangeCat',
+      description: 'Building SyntX AI coding assistant, Qualcomm ISV Partner, leading AI engineering initiatives',
+      tech: ['Python', 'PyTorch', 'AI/ML', 'TypeScript', 'Qualcomm'],
       status: 'CURRENT',
-      location: 'Night City, CA'
+      location: 'Noida, Uttar Pradesh, India'
     },
     {
-      year: '2022-2024',
-      title: 'Senior Tech Lead',
-      company: 'Arasaka Digital',
-      description: 'Led cybersecurity and neural interface development',
-      tech: ['Cybersecurity', 'Neural Networks', 'Go', 'Docker'],
+      year: '2024',
+      title: 'AI Engineer (Freelance)',
+      company: 'Gauge Advertising',
+      description: 'Designed Python Flask server for automated ad banner resizing, reduced manual design time by 50-70%',
+      tech: ['Python', 'Flask', 'AI Solutions', 'Docker', 'Google Cloud'],
       status: 'COMPLETED',
-      location: 'Silicon Valley, CA'
+      location: 'Delhi, India'
     },
     {
-      year: '2020-2022',
-      title: 'Full Stack Netrunner',
-      company: 'Militech Solutions',
-      description: 'Developed quantum-encrypted communication systems',
-      tech: ['Quantum Computing', 'Blockchain', 'React', 'Node.js'],
+      year: '2024',
+      title: 'AI Intern',
+      company: 'Olive Gaea',
+      description: 'Optimized invoice processing with LLMs, increased processing capacity by 25x, expanded language support to 40 languages',
+      tech: ['LLMs', 'Gemini', 'GPT-4o', 'Python', 'NLP'],
       status: 'COMPLETED',
-      location: 'Neo Francisco, CA'
+      location: 'Dubai, UAE (Remote)'
     },
-    {
-      year: '2018-2020',
-      title: 'Code Samurai',
-      company: 'Freelance',
-      description: 'Built cutting-edge web applications for startups',
-      tech: ['JavaScript', 'Python', 'AWS', 'PostgreSQL'],
-      status: 'COMPLETED',
-      location: 'Various Locations'
-    }
   ];
 
   return (
@@ -208,10 +166,10 @@ export default function CyberpunkProfile() {
                   </div>
                   
                   <div className="text-xs space-y-1 text-yellow-400">
-                    <div>ID: 0x7F4A9B2C</div>
-                    <div>CLEARANCE: LEVEL_9</div>
-                    <div>LAST_SEEN: Night City, CA</div>
-                    <div>UPTIME: {Math.floor((Date.now() - new Date('2002-01-01').getTime()) / (1000 * 60 * 60 * 24 * 365))} years</div>
+                    <div>ID: 0xFF6B35</div>
+                    <div>CLEARANCE: SYNTX_FOUNDER</div>
+                    <div>LAST_SEEN: New Delhi, India</div>
+                    <div>UPTIME: {Math.floor((Date.now() - new Date('2003-12-17').getTime()) / (1000 * 60 * 60 * 24 * 365))} years</div>
                   </div>
                 </div>
               </div>
@@ -264,7 +222,7 @@ export default function CyberpunkProfile() {
               {/* Navigation */}
               <div className="border border-yellow-400/30 bg-black/80 backdrop-blur-sm p-4 mb-6">
                 <div className="flex flex-wrap gap-4">
-                  {['overview', 'capabilities', 'projects', 'timeline', 'predictions', 'contact'].map((tab) => (
+                  {['overview', 'capabilities', 'timeline', 'events', 'predictions', 'contact'].map((tab) => (
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
@@ -289,19 +247,20 @@ export default function CyberpunkProfile() {
                       <h2 className="text-xl text-yellow-400 mb-4 neon-flicker">NEURAL_INTERFACE_INIT</h2>
                       <div className="text-cyan-300 space-y-3 text-sm leading-relaxed">
                         <p>
-                          Welcome, choom. You've jacked into my neural net. I'm a 22-year-old tech samurai 
-                          cutting through corporate ice and building the digital future. Born in the data streams, 
-                          raised by artificial minds, forged in the neon-lit streets of Night City's tech sector.
+                          Welcome, choom. You've jacked into my neural net. I'm Prithvi Singh Chohan, 
+                          Co-Founder of SyntX by OrangeCat, architecting the future of AI-powered development 
+                          from New Delhi, India. Born in the age of deep learning, raised on Python and PyTorch, 
+                          forged in India's tech ecosystem.
                         </p>
                         <p>
-                          My reality: Cyberpunk aesthetics, hacker ethics, neural enhancement philosophy. 
-                          I decrypt chaos into code, build bridges across digital divides, and turn impossible 
-                          dreams into executable reality.
+                          My reality: Building sovereign AI for India, making coding accessible in 120+ languages, 
+                          and pushing the boundaries of what AI can do for developers. I build SyntX - the AI 
+                          coding assistant that's revolutionizing how we write, debug, and ship code.
                         </p>
                         <p>
-                          Currently: Architecting the next evolution of human-machine symbiosis while corps 
-                          are still trying to figure out basic AI ethics. The future is bright, neon, and 
-                          full of infinite possibilities.
+                          Currently: Leading SyntX as a Qualcomm ISV Partner, building AI agents that understand
+                          code like senior engineers, and scaling cloud infrastructure for the next generation 
+                          of AI-powered development tools. Making India AI-ready, one developer at a time.
                         </p>
                       </div>
                     </div>
@@ -332,8 +291,8 @@ export default function CyberpunkProfile() {
                         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                           <div className="text-center">
                             <div className="text-2xl mb-2 text-red-400 animate-pulse">⦿</div>
-                            <div className="text-yellow-400 shadow-lg shadow-yellow-400/50">37.7749° N, 122.4194° W</div>
-                            <div className="text-cyan-400 text-xs mt-1">Night City Financial District</div>
+                            <div className="text-yellow-400 shadow-lg shadow-yellow-400/50">28.6139° N, 77.2090° E</div>
+                            <div className="text-cyan-400 text-xs mt-1">New Delhi, India</div>
                             <div className="text-green-400 text-xs mt-2">LAST_PING: {currentTime.toLocaleTimeString()}</div>
                           </div>
                         </div>
@@ -374,49 +333,10 @@ export default function CyberpunkProfile() {
                       <h3 className="text-red-400 mb-3">SYSTEM_LIMITATIONS</h3>
                       <div className="text-red-300 text-sm space-y-2">
                         <div>• Neural rejection of legacy PHP codebases</div>
-                        <div>• Physical incompatibility with Internet Explorer</div>
                         <div>• Allergic reaction to unnecessary meetings</div>
-                        <div>• System crash when exposed to SQL injection</div>
                         <div>• Cognitive overload from "make logo bigger" requests</div>
-                        <div>• Automatic firewall against MLM schemes</div>
+                        <div>• Automatic firewall against Network Marketing</div>
                       </div>
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'projects' && (
-                  <div>
-                    <h2 className="text-xl text-yellow-400 mb-6 neon-flicker">ACTIVE_OPERATIONS</h2>
-                    <div className="space-y-4">
-                      {projects.map((project, index) => (
-                        <div key={index} className="border border-yellow-400/20 p-4 bg-black/50 holographic">
-                          <div className="flex justify-between items-start mb-2">
-                            <h3 className="text-yellow-400">{project.name}</h3>
-                            <span className={`text-xs px-2 py-1 border ${
-                              project.status === 'ACTIVE' ? 'text-green-400 border-green-400 bg-green-900/20' :
-                              project.status === 'BETA' ? 'text-yellow-400 border-yellow-400 bg-yellow-900/20' :
-                              'text-cyan-400 border-cyan-400 bg-cyan-900/20'
-                            }`}>
-                              {project.status}
-                            </span>
-                          </div>
-                          <p className="text-cyan-300 text-sm mb-3">{project.description}</p>
-                          <div className="flex justify-between items-center">
-                            <div className="flex flex-wrap gap-2">
-                              {project.tech.map((tech, i) => (
-                                <span key={i} className="text-xs text-yellow-400 bg-yellow-400/10 px-2 py-1 border border-yellow-400/30">
-                                  {tech}
-                                </span>
-                              ))}
-                            </div>
-                            <span className={`text-xs ${
-                              project.impact === 'HIGH' ? 'text-red-400' : 'text-orange-400'
-                            }`}>
-                              THREAT_LVL: {project.impact}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
                     </div>
                   </div>
                 )}
@@ -479,6 +399,82 @@ export default function CyberpunkProfile() {
                   </div>
                 )}
 
+                {activeTab === 'events' && (
+                  <div>
+                    <h2 className="text-xl text-yellow-400 mb-6 neon-flicker">RECENT_EVENTS.LOG</h2>
+                    <div className="space-y-6">
+                      <div className="border border-yellow-400/20 p-4 bg-black/50">
+                        <div className="flex justify-between items-start mb-3">
+                          <h3 className="text-yellow-400">SyntX AI Unplugged Event</h3>
+                          <span className="text-xs text-green-400">Gurugram, India • 1 week ago</span>
+                        </div>
+                        <p className="text-cyan-300 text-sm mb-3">
+                          Successfully organized and hosted SyntX AI Unplugged event in Gurugram with 40k+ 
+                          college students. Featured panel discussions, networking sessions, and showcased 
+                          AI innovations. Event exceeded all expectations with incredible energy and collaboration.
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          <span className="text-xs text-yellow-400 bg-yellow-400/10 px-2 py-1 border border-yellow-400/30">
+                            Event Management
+                          </span>
+                          <span className="text-xs text-yellow-400 bg-yellow-400/10 px-2 py-1 border border-yellow-400/30">
+                            AI Community
+                          </span>
+                          <span className="text-xs text-yellow-400 bg-yellow-400/10 px-2 py-1 border border-yellow-400/30">
+                            Networking
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="border border-red-400/20 p-4 bg-red-900/10">
+                        <div className="flex justify-between items-start mb-3">
+                          <h3 className="text-red-400">Qualcomm Snapdragon X Launch</h3>
+                          <span className="text-xs text-green-400">Taj Palace, Delhi • 6 months ago</span>
+                        </div>
+                        <p className="text-cyan-300 text-sm mb-3">
+                          Showcased Lagrange's offline, on-device AI agentic capabilities at the Snapdragon X 
+                          Launch event. Demonstrated how Lagrange empowers users to build software offline, 
+                          running seamlessly on Snapdragon X series AI PCs with 45 TOPS NPU support.
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          <span className="text-xs text-red-400 bg-red-400/10 px-2 py-1 border border-red-400/30">
+                            Qualcomm ISV Partner
+                          </span>
+                          <span className="text-xs text-red-400 bg-red-400/10 px-2 py-1 border border-red-400/30">
+                            On-Device AI
+                          </span>
+                          <span className="text-xs text-red-400 bg-red-400/10 px-2 py-1 border border-red-400/30">
+                            Snapdragon X
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="border border-orange-400/20 p-4 bg-orange-900/10">
+                        <div className="flex justify-between items-start mb-3">
+                          <h3 className="text-orange-400">Independence Day AI Initiative</h3>
+                          <span className="text-xs text-green-400">India • 3 weeks ago</span>
+                        </div>
+                        <p className="text-cyan-300 text-sm mb-3">
+                          Launched "Sovereign AI for India" campaign, making coding accessible in 120+ languages 
+                          from Kashmir to Kanyakumari. SyntX now supports native Indian languages, breaking 
+                          English-only barriers in tech education and development.
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          <span className="text-xs text-orange-400 bg-orange-400/10 px-2 py-1 border border-orange-400/30">
+                            Sovereign AI
+                          </span>
+                          <span className="text-xs text-orange-400 bg-orange-400/10 px-2 py-1 border border-orange-400/30">
+                            Multilingual Support
+                          </span>
+                          <span className="text-xs text-orange-400 bg-orange-400/10 px-2 py-1 border border-orange-400/30">
+                            Made in India
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {activeTab === 'predictions' && (
                   <div>
                     <h2 className="text-xl text-yellow-400 mb-6 neon-flicker">NEURAL_PREDICTIONS</h2>
@@ -519,23 +515,23 @@ export default function CyberpunkProfile() {
                         <div className="space-y-3 text-sm">
                           <div className="flex justify-between">
                             <span>NEURAL_MAIL:</span>
-                            <span className="text-cyan-400">founder@nightcity.net</span>
+                            <span className="text-cyan-400">founder@orangecat.ai</span>
                           </div>
                           <div className="flex justify-between">
                             <span>ENCRYPTED_LINK:</span>
-                            <span className="text-green-400">+1.555.CYBER</span>
+                            <span className="text-green-400">linkedin.com/in/prithvichohan</span>
                           </div>
                           <div className="flex justify-between">
                             <span>CODE_REPO:</span>
-                            <span className="text-green-400">@cyberpunk_samurai</span>
+                            <span className="text-green-400">@Kraken2003</span>
                           </div>
                           <div className="flex justify-between">
-                            <span>CORP_NET:</span>
-                            <span className="text-blue-400">linkedin.com/in/neural-interface</span>
+                            <span>SYNTX:</span>
+                            <span className="text-blue-400">syntx.dev</span>
                           </div>
                           <div className="flex justify-between">
-                            <span>DARK_WEB:</span>
-                            <span className="text-purple-400">@tech_ronin</span>
+                            <span>ORANGECAT:</span>
+                            <span className="text-purple-400">orangecat.ai</span>
                           </div>
                         </div>
                       </div>
@@ -575,11 +571,11 @@ export default function CyberpunkProfile() {
           <div className="container mx-auto text-center text-xs text-yellow-400/60">
             <div className="flex justify-center space-x-8 flex-wrap">
               <span>NEURAL_TIME: {currentTime.toLocaleString()}</span>
-              <span>VERSION: CYBERPUNK_2077.24</span>
+              <span>VERSION: SYNTX_2024.1</span>
               <span>NEURAL_LINK: STABLE</span>
               <span>ENCRYPTION: QUANTUM_AES-512</span>
               <span>ICE: ACTIVE</span>
-              <span>STATUS: JACKED_IN</span>
+              <span>STATUS: BUILDING_AI</span>
             </div>
           </div>
         </div>
