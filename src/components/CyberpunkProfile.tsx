@@ -279,6 +279,25 @@ export default function CyberpunkProfile() {
                     <div className="border border-yellow-400/30 p-4">
                       <h3 className="text-yellow-400 mb-3">GPS_COORDINATES</h3>
                       <div className="bg-black/70 h-64 border border-yellow-400/20 relative overflow-hidden">
+                        {/* India Map Background */}
+                        <img
+                          src="https://simplemaps.com/static/svg/country/in/admin1/in.svg"
+                          alt="India Map"
+                          className="absolute inset-0 w-full h-full opacity-60"
+                          style={{
+                            filter: 'sepia(100%) hue-rotate(40deg) saturate(200%) contrast(150%) brightness(1.2)',
+                            mixBlendMode: 'screen',
+                            objectFit: 'cover',
+                            objectPosition: '50% 24%',
+                            transform: 'scale(4.8)',
+                            transformOrigin: '30% center'
+                          }}
+                          onError={(e) => {
+                            // Fallback to a simple placeholder if image fails to load
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+
                         {/* Fake map grid */}
                         <div className="absolute inset-0 opacity-30">
                           {Array.from({ length: 20 }).map((_, i) => (
@@ -296,21 +315,17 @@ export default function CyberpunkProfile() {
                             />
                           ))}
                         </div>
-                        
+
                         {/* Location marker */}
-                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
                           <div className="text-center">
-                            <div className="text-2xl mb-2 text-red-400 animate-pulse">⦿</div>
-                            <div className="text-red-400">28.6139° N, 77.2090° E</div>
+                            <div className="text-3xl mb-2 text-red-400 animate-pulse drop-shadow-lg">⦿</div>
+                            <div className="text-red-400 font-bold">28.6139° N, 77.2090° E</div>
                             <div className="text-cyan-400 text-xs mt-1">New Delhi, India</div>
                             <div className="text-green-400 text-xs mt-2">LAST_PING: {currentTime.toLocaleTimeString()}</div>
                           </div>
                         </div>
-
-                        {/* Radar sweep effect */}
-                        <div className="absolute top-1/2 left-1/2 w-32 h-32 border border-green-400/50 rounded-full animate-ping"></div>
-                        <div className="absolute top-1/2 left-1/2 w-24 h-24 border border-cyan-400/50 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
-                      </div>
+                        </div>
                     </div>
                   </div>
                 )}
