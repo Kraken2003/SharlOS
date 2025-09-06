@@ -152,7 +152,7 @@ export default function CyberpunkProfile() {
               <div className="border border-yellow-400/30 bg-black/80 backdrop-blur-sm p-6 mb-6 holographic">
                 <div className="relative mb-4">
                   <ImageWithFallback
-                    src="https://images.unsplash.com/photo-1532442312344-38696bc5294d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMHRlY2glMjBmb3VuZGVyJTIwcHJvZmlsZSUyMHBvcnRyYWl0fGVufDF8fHx8MTc1NzAxNzQzNXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+                    src="https://media.licdn.com/dms/image/v2/D5603AQEMT16-3Gn4AA/profile-displayphoto-crop_800_800/B56Zh0pOqXHQAM-/0/1754303622707?e=1759968000&v=beta&t=grrvq2alvg_MiEb8UFAWZ6OBdJzkp-BQgeFfclAWPmU"
                     alt="Profile"
                     className="w-32 h-32 mx-auto border-2 border-yellow-400 contrast-125 pixelated"
                     style={{ filter: 'sepia(100%) hue-rotate(40deg) saturate(150%)' }}
@@ -162,7 +162,7 @@ export default function CyberpunkProfile() {
                 </div>
                 
                 <div className="text-center">
-                  <h1 className="text-2xl mb-2 text-yellow-400 neon-flicker">
+                  <h1 className="text-2xl mb-2 text-red-400">
                     {glitchText}
                   </h1>
                   <div className="text-sm text-cyan-300 mb-4">
@@ -254,7 +254,7 @@ export default function CyberpunkProfile() {
                 {activeTab === 'overview' && (
                   <div className="space-y-6">
                     <div>
-                      <h2 className="text-xl text-yellow-400 mb-4 neon-flicker">NEURAL_INTERFACE_INIT</h2>
+                      <h2 className="text-xl text-red-400 mb-4">NEURAL_INTERFACE_INIT</h2>
                       <div className="text-cyan-300 space-y-3 text-sm leading-relaxed">
                         <p>
                           Welcome, choom. You've jacked into my neural net. I'm Prithvi Singh Chohan, 
@@ -301,7 +301,7 @@ export default function CyberpunkProfile() {
                         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                           <div className="text-center">
                             <div className="text-2xl mb-2 text-red-400 animate-pulse">⦿</div>
-                            <div className="text-yellow-400 shadow-lg shadow-yellow-400/50">28.6139° N, 77.2090° E</div>
+                            <div className="text-red-400">28.6139° N, 77.2090° E</div>
                             <div className="text-cyan-400 text-xs mt-1">New Delhi, India</div>
                             <div className="text-green-400 text-xs mt-2">LAST_PING: {currentTime.toLocaleTimeString()}</div>
                           </div>
@@ -317,7 +317,7 @@ export default function CyberpunkProfile() {
 
                 {activeTab === 'capabilities' && (
                   <div>
-                    <h2 className="text-xl text-yellow-400 mb-6 neon-flicker">NEURAL_SKILLS</h2>
+                    <h2 className="text-xl text-red-400 mb-6">NEURAL_SKILLS</h2>
                     <div className="space-y-4">
                       {capabilities.map((cap, index) => (
                         <div key={index} className="border border-yellow-400/20 p-4 bg-black/50">
@@ -353,7 +353,7 @@ export default function CyberpunkProfile() {
 
                 {activeTab === 'timeline' && (
                   <div>
-                    <h2 className="text-xl text-yellow-400 mb-6 neon-flicker">WORK_HISTORY.LOG</h2>
+                    <h2 className="text-xl text-red-400 mb-6">WORK_HISTORY.LOG</h2>
                     <div className="space-y-6">
                       {workTimeline.map((job, index) => (
                         <div key={index} className="relative">
@@ -411,7 +411,7 @@ export default function CyberpunkProfile() {
 
                 {activeTab === 'events' && (
                   <div>
-                    <h2 className="text-xl text-yellow-400 mb-6 neon-flicker">RECENT_EVENTS.LOG</h2>
+                    <h2 className="text-xl text-red-400 mb-6">RECENT_EVENTS.LOG</h2>
                     <div className="space-y-6">
                       <div className="border border-yellow-400/20 p-4 bg-black/50">
                         <div className="flex justify-between items-start mb-3">
@@ -487,7 +487,7 @@ export default function CyberpunkProfile() {
 
                 {activeTab === 'predictions' && (
                   <div>
-                    <h2 className="text-xl text-yellow-400 mb-6 neon-flicker">NEURAL_PREDICTIONS</h2>
+                    <h2 className="text-xl text-red-400 mb-6">NEURAL_PREDICTIONS</h2>
                     <div className="space-y-6">
                       {predictions.map((pred, index) => (
                         <div key={index} className="border border-yellow-400/20 p-4 bg-black/50">
@@ -521,7 +521,7 @@ export default function CyberpunkProfile() {
 
                 {activeTab === 'contact' && (
                   <div>
-                    <h2 className="text-xl text-yellow-400 mb-6 neon-flicker">NEURAL_LINK_PROTOCOLS</h2>
+                    <h2 className="text-xl text-red-400 mb-6">NEURAL_LINK_PROTOCOLS</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       
                       <div className="border border-yellow-400/30 p-4 bg-black/50">

@@ -136,7 +136,7 @@ export default function IPOD() {
 
   return (
     <div className="border border-yellow-400/30 bg-black/80 backdrop-blur-sm p-6">
-      <h2 className="text-xl text-yellow-400 mb-6 neon-flicker">IPOD.EXE</h2>
+      <h2 className="text-xl text-red-400 mb-6">IPOD.EXE</h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Current Song Display */}
@@ -256,27 +256,29 @@ export default function IPOD() {
       {/* Hidden Audio Element */}
       <audio ref={audioRef} preload="metadata" />
 
-      <style jsx>{`
-        .slider::-webkit-slider-thumb {
-          appearance: none;
-          height: 12px;
-          width: 12px;
-          border-radius: 50%;
-          background: #ffff00;
-          cursor: pointer;
-          box-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
-        }
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .slider::-webkit-slider-thumb {
+            appearance: none;
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            background: #ffff00;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
+          }
 
-        .slider::-moz-range-thumb {
-          height: 12px;
-          width: 12px;
-          border-radius: 50%;
-          background: #ffff00;
-          cursor: pointer;
-          border: none;
-          box-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
-        }
-      `}</style>
+          .slider::-moz-range-thumb {
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            background: #ffff00;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
+          }
+        `
+      }} />
     </div>
   );
 }
