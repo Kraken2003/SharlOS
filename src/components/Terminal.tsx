@@ -5,12 +5,25 @@ interface Command {
   output: string[];
 }
 
-export default function Terminal() {
+interface Song {
+  name: string;
+  audioSrc: string;
+  imageSrc: string;
+}
+
+export default function Terminal({ onBack }: { onBack?: () => void }) {
   const [history, setHistory] = useState<Command[]>([]);
   const [currentInput, setCurrentInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [songs, setSongs] = useState<Song[]>([]);
+  const [currentSongIndex, setCurrentSongIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const welcomeMessage = [
     '╔═══════════════════════════════════════════════════════════════╗',
@@ -21,11 +34,14 @@ export default function Terminal() {
     '║                                                               ║',
     '║    Type "help" for available commands                         ║',
     '║    Type "about" to learn about SyntX and Orangecat            ║',
+    '║    Type "music" to access the music player                    ║',
+    '║    Type "exit" to return to the Matrix                        ║',
     '║                                                               ║',
     '╚═══════════════════════════════════════════════════════════════╝',
     '',
     'AI-powered development environment initialized...',
     'Loading Prithvi\'s neural profile...',
+    'Music system loaded...',
     '',
   ];
 
@@ -39,11 +55,13 @@ export default function Terminal() {
       '  skills      - Display technical skills and tech stack',
       '  contact     - Get contact information and links',
       '  experience  - View professional experience',
+      '  music       - Access the music player',
       '  clear       - Clear the terminal screen',
       '  whoami      - Display current user info',
       '  date        - Show current date and time',
       '  uptime      - Show system uptime',
       '  pwd         - Print working directory',
+      '  exit        - Return to the Matrix',
       '',
       'Type any command to get started.',
     ],
@@ -232,7 +250,121 @@ export default function Terminal() {
       'Visit syntx.dev to try it out!',
     ],
     clear: [],
+    music: [
+      '=== MUSIC PLAYER ===',
+      '',
+      'Music commands:',
+      '  play        - Play current song',
+      '  pause       - Pause current song',
+      '  next        - Play next song',
+      '  prev        - Play previous song',
+      '  list        - Show playlist',
+      '  status      - Show current song status',
+      '',
+      'Available songs:',
+      ...(songs.length > 0 ? songs.map((song, index) => `  [${index + 1}] ${song.name}`) : ['  No songs loaded']),
+      '',
+      'Type "play" to start the music!',
+    ],
+    play: [
+      'Starting music playback...',
+      ...(songs.length > 0 ? [
+        `Now playing: ${songs[currentSongIndex]?.name || 'Unknown'}`,
+        'Use "pause", "next", "prev" to control playback.',
+      ] : ['No songs available. Type "music" to see available songs.']),
+    ],
+    pause: [
+      'Music paused.',
+      'Type "play" to resume.',
+    ],
+    next: [
+      'Skipping to next song...',
+      ...(songs.length > 0 ? [
+        `Now playing: ${songs[(currentSongIndex + 1) % songs.length]?.name || 'Unknown'}`,
+      ] : ['No songs available.']),
+    ],
+    prev: [
+      'Skipping to previous song...',
+      ...(songs.length > 0 ? [
+        `Now playing: ${songs[(currentSongIndex - 1 + songs.length) % songs.length]?.name || 'Unknown'}`,
+      ] : ['No songs available.']),
+    ],
+    list: [
+      '=== PLAYLIST ===',
+      '',
+      ...(songs.length > 0 ? songs.map((song, index) => 
+        `${index === currentSongIndex ? '▶' : ' '} [${index + 1}] ${song.name}${index === currentSongIndex && isPlaying ? ' (NOW PLAYING)' : ''}`
+      ) : ['No songs loaded']),
+      '',
+      'Use "play [number]" to play a specific song.',
+    ],
+    status: [
+      '=== MUSIC STATUS ===',
+      '',
+      ...(songs.length > 0 ? [
+        `Current song: ${songs[currentSongIndex]?.name || 'Unknown'}`,
+        `Status: ${isPlaying ? 'Playing' : 'Paused'}`,
+        `Progress: ${Math.floor(currentTime / 60)}:${Math.floor(currentTime % 60).toString().padStart(2, '0')} / ${Math.floor(duration / 60)}:${Math.floor(duration % 60).toString().padStart(2, '0')}`,
+        `Song ${currentSongIndex + 1} of ${songs.length}`,
+      ] : ['No songs loaded']),
+    ],
+    exit: [
+      'Returning to the Matrix...',
+      'Goodbye, choom.',
+    ],
   };
+
+  // Load songs from audio directory
+  useEffect(() => {
+    const loadSongs = async () => {
+      try {
+        // Use Vite's import.meta.glob to automatically find all MP3 files at build time
+        const audioModules = (import.meta as any).glob('/public/audio/*.mp3', { query: '?url', import: 'default' });
+        const imageModules = (import.meta as any).glob('/public/audio/*.{jpg,jpeg,png,webp}', { query: '?url', import: 'default' });
+
+        const detectedSongs: Song[] = [];
+
+        // Process each audio file found by Vite
+        for (const [path, moduleLoader] of Object.entries(audioModules)) {
+          const audioUrl = await (moduleLoader as () => Promise<string>)();
+          const fileName = path.split('/').pop()?.replace('.mp3', '') || '';
+
+          // Convert filename to readable song name
+          const songName = fileName.replace(/_/g, ' ');
+
+          // Find matching image using Vite's glob
+          let imageSrc = '';
+          const possibleImagePaths = [
+            `/public/audio/${fileName}.jpg`,
+            `/public/audio/${fileName}.jpeg`,
+            `/public/audio/${fileName}.png`,
+            `/public/audio/${fileName}.webp`
+          ];
+
+          for (const imgPath of possibleImagePaths) {
+            if (imageModules[imgPath]) {
+              imageSrc = await (imageModules[imgPath] as () => Promise<string>)();
+              break;
+            }
+          }
+
+          detectedSongs.push({
+            name: songName,
+            audioSrc: audioUrl,
+            imageSrc: imageSrc
+          });
+        }
+
+        setSongs(detectedSongs);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error loading songs:', error);
+        setIsLoading(false);
+      }
+    };
+
+    loadSongs();
+  }, []);
 
   useEffect(() => {
     // Show welcome message on mount
@@ -242,6 +374,40 @@ export default function Terminal() {
       inputRef.current.focus();
     }
   }, []);
+
+  // Audio event handlers
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
+    const handleLoadedMetadata = () => setDuration(audio.duration);
+    const handleEnded = () => {
+      // Auto-play next song
+      setCurrentSongIndex((prev) => (prev + 1) % songs.length);
+    };
+
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.addEventListener('ended', handleEnded);
+
+    return () => {
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('ended', handleEnded);
+    };
+  }, [songs.length]);
+
+  // Update audio source when song changes
+  useEffect(() => {
+    if (songs.length > 0 && audioRef.current) {
+      audioRef.current.src = songs[currentSongIndex].audioSrc;
+      audioRef.current.load();
+      if (isPlaying) {
+        audioRef.current.play().catch(console.error);
+      }
+    }
+  }, [currentSongIndex, songs, isPlaying]);
 
   useEffect(() => {
     // Auto-scroll to bottom
@@ -256,6 +422,39 @@ export default function Terminal() {
     if (cmd === 'clear') {
       setHistory([]);
       return;
+    }
+
+    if (cmd === 'exit') {
+      if (onBack) {
+        onBack();
+      }
+      return;
+    }
+
+    // Handle music commands
+    if (cmd === 'play') {
+      if (audioRef.current && songs.length > 0) {
+        audioRef.current.play().catch(console.error);
+        setIsPlaying(true);
+      }
+    } else if (cmd === 'pause') {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      }
+    } else if (cmd === 'next') {
+      setCurrentSongIndex((prev) => (prev + 1) % songs.length);
+    } else if (cmd === 'prev') {
+      setCurrentSongIndex((prev) => (prev - 1 + songs.length) % songs.length);
+    } else if (cmd.startsWith('play ')) {
+      const songNum = parseInt(cmd.split(' ')[1]) - 1;
+      if (songNum >= 0 && songNum < songs.length) {
+        setCurrentSongIndex(songNum);
+        if (audioRef.current) {
+          audioRef.current.play().catch(console.error);
+          setIsPlaying(true);
+        }
+      }
     }
 
     let output = ['Command not found. Type "help" for available commands.'];
@@ -284,6 +483,7 @@ export default function Terminal() {
 
   return (
     <div className="h-screen bg-black text-green-400 font-mono overflow-hidden">
+      
       <div 
         ref={terminalRef}
         className="h-full overflow-y-auto p-4 scrollbar-thin scrollbar-track-black scrollbar-thumb-green-800"
@@ -334,6 +534,9 @@ export default function Terminal() {
           <span className="animate-pulse text-green-400">█</span>
         </form>
       </div>
+      
+      {/* Hidden Audio Element */}
+      <audio ref={audioRef} preload="metadata" />
     </div>
   );
 }

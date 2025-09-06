@@ -5,7 +5,7 @@ import PongGame from './PongGame';
 import SpaceInvadersGame from './SpaceInvadersGame';
 import IPOD from './IPOD';
 
-export default function CyberpunkProfile() {
+export default function CyberpunkProfile({ onBack }: { onBack?: () => void }) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [glitchText, setGlitchText] = useState('PRITHVI_CHOHAN');
   const [activeTab, setActiveTab] = useState('overview');
@@ -143,6 +143,7 @@ export default function CyberpunkProfile() {
 
       {/* Main Content */}
       <div className="relative z-10">
+        
         {/* Header/Hero Section */}
         <div className="container mx-auto px-4 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

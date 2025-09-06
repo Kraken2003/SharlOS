@@ -20,8 +20,8 @@ export default function IPOD() {
     const loadSongs = async () => {
       try {
         // Use Vite's import.meta.glob to automatically find all MP3 files at build time
-        const audioModules = (import.meta as any).glob('/public/audio/*.mp3', { as: 'url' });
-        const imageModules = (import.meta as any).glob('/public/audio/*.{jpg,jpeg,png,webp}', { as: 'url' });
+        const audioModules = (import.meta as any).glob('/public/audio/*.mp3', { query: '?url', import: 'default' });
+        const imageModules = (import.meta as any).glob('/public/audio/*.{jpg,jpeg,png,webp}', { query: '?url', import: 'default' });
 
         const detectedSongs: Song[] = [];
 
