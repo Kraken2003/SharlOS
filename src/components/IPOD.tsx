@@ -10,36 +10,53 @@ export default function IPOD() {
   const [songs, setSongs] = useState<Song[]>([]);
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.5);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // Load songs from audio directory
+  // Auto-load songs using Vite's glob import (TRULY NO HARDCODING!)
   useEffect(() => {
     const loadSongs = async () => {
       try {
-        // For now, we'll create a sample structure. In a real app, you'd scan the audio directory
-        const sampleSongs: Song[] = [
-          {
-            name: 'Sample Track 1',
-            audioSrc: '/audio/sample1.mp3',
-            imageSrc: '/audio/sample1.jpg'
-          },
-          {
-            name: 'Sample Track 2',
-            audioSrc: '/audio/sample2.mp3',
-            imageSrc: '/audio/sample2.png'
-          },
-          {
-            name: 'Sample Track 3',
-            audioSrc: '/audio/sample3.mp3',
-            imageSrc: '/audio/sample3.jpg'
-          }
-        ];
+        // Use Vite's import.meta.glob to automatically find all MP3 files at build time
+        const audioModules = (import.meta as any).glob('/public/audio/*.mp3', { as: 'url' });
+        const imageModules = (import.meta as any).glob('/public/audio/*.{jpg,jpeg,png,webp}', { as: 'url' });
 
-        setSongs(sampleSongs);
+        const detectedSongs: Song[] = [];
+
+        // Process each audio file found by Vite
+        for (const [path, moduleLoader] of Object.entries(audioModules)) {
+          const audioUrl = await (moduleLoader as () => Promise<string>)();
+          const fileName = path.split('/').pop()?.replace('.mp3', '') || '';
+
+          // Convert filename to readable song name
+          const songName = fileName.replace(/_/g, ' ');
+
+          // Find matching image using Vite's glob
+          let imageSrc = '';
+          const possibleImagePaths = [
+            `/public/audio/${fileName}.jpg`,
+            `/public/audio/${fileName}.jpeg`,
+            `/public/audio/${fileName}.png`,
+            `/public/audio/${fileName}.webp`
+          ];
+
+          for (const imgPath of possibleImagePaths) {
+            if (imageModules[imgPath]) {
+              imageSrc = await (imageModules[imgPath] as () => Promise<string>)();
+              break;
+            }
+          }
+
+          detectedSongs.push({
+            name: songName,
+            audioSrc: audioUrl,
+            imageSrc: imageSrc
+          });
+        }
+
+        setSongs(detectedSongs);
         setIsLoading(false);
       } catch (error) {
         console.error('Error loading songs:', error);
@@ -84,12 +101,6 @@ export default function IPOD() {
     }
   }, [currentSongIndex, songs, isPlaying]);
 
-  // Update volume
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume;
-    }
-  }, [volume]);
 
   const togglePlay = () => {
     if (!audioRef.current) return;
@@ -142,7 +153,7 @@ export default function IPOD() {
         {/* Current Song Display */}
         <div className="space-y-4">
           <div className="text-center">
-            <div className="w-48 h-48 mx-auto mb-4 border-2 border-yellow-400/30 bg-black/50 flex items-center justify-center">
+            <div className="w-32 h-32 mx-auto mb-4 border-2 border-yellow-400/30 bg-black/50 flex items-center justify-center">
               {currentSong ? (
                 <img
                   src={currentSong.imageSrc}
@@ -200,19 +211,6 @@ export default function IPOD() {
             </button>
           </div>
 
-          {/* Volume Control */}
-          <div className="space-y-2">
-            <div className="text-xs text-yellow-400/60">VOLUME</div>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.1"
-              value={volume}
-              onChange={(e) => setVolume(parseFloat(e.target.value))}
-              className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
-            />
-          </div>
         </div>
 
         {/* Playlist */}
