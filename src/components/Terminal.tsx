@@ -11,6 +11,15 @@ interface Song {
   imageSrc: string;
 }
 
+interface FileSystemItem {
+  name: string;
+  type: 'file' | 'directory';
+  content?: string;
+  children?: FileSystemItem[];
+  createdAt: string;
+  modifiedAt: string;
+}
+
 export default function Terminal({ onBack }: { onBack?: () => void }) {
   const [history, setHistory] = useState<Command[]>([]);
   const [currentInput, setCurrentInput] = useState('');
@@ -26,9 +35,160 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
   const [showCliPrompt, setShowCliPrompt] = useState(false);
   const [username, setUsername] = useState('');
   const [awaitingUsername, setAwaitingUsername] = useState(false);
+  const [fileSystem, setFileSystem] = useState<FileSystemItem[]>([]);
+  const [currentDirectory, setCurrentDirectory] = useState('/home');
   const inputRef = useRef<HTMLInputElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  // File system utilities (in-memory only)
+  const normalizePath = (base: string, target: string): string => {
+    const isAbs = target.startsWith('/');
+    const raw = isAbs ? target : (base === '/' ? `/${target}` : `${base}/${target}`);
+    const parts = raw.split('/');
+    const stack: string[] = [];
+    for (const p of parts) {
+      if (p === '' || p === '.') continue;
+      if (p === '..') {
+        if (stack.length) stack.pop();
+      } else {
+        stack.push(p);
+      }
+    }
+    return '/' + stack.join('/');
+  };
+
+  const splitParentAndName = (absPath: string): { parent: string; name: string } => {
+    const norm = absPath === '' ? '/' : absPath;
+    if (norm === '/') return { parent: '/', name: '' };
+    const parts = norm.split('/').filter(Boolean);
+    const name = parts.pop() || '';
+    const parent = '/' + parts.join('/');
+    return { parent: parent === '' ? '/' : parent, name };
+  };
+
+  const getDirChildren = (absPath: string, fs: FileSystemItem[]): FileSystemItem[] | null => {
+    if (absPath === '/' || absPath === '') return fs;
+    const parts = absPath.split('/').filter(Boolean);
+    let current = fs;
+    for (const part of parts) {
+      const found = current.find(i => i.type === 'directory' && i.name === part);
+      if (!found || !found.children) return null;
+      current = found.children;
+    }
+    return current;
+  };
+
+  const findItemAtPath = (absPath: string, fs: FileSystemItem[]): FileSystemItem | null => {
+    if (absPath === '/' || absPath === '') return { name: '/', type: 'directory', children: fs, createdAt: new Date().toISOString(), modifiedAt: new Date().toISOString() };
+    const { parent, name } = splitParentAndName(absPath);
+    const dirChildren = getDirChildren(parent, fs);
+    if (!dirChildren) return null;
+    return dirChildren.find(i => i.name === name) || null;
+  };
+
+  const findItemInPath = (path: string, fs: FileSystemItem[]): FileSystemItem | null => findItemAtPath(path, fs);
+
+  const getCurrentDirectoryContents = (): FileSystemItem[] => {
+    const children = getDirChildren(currentDirectory, fileSystem);
+    return children || [];
+  };
+
+  const createFile = (name: string, content: string = ''): FileSystemItem => {
+    return {
+      name,
+      type: 'file',
+      content,
+      createdAt: new Date().toISOString(),
+      modifiedAt: new Date().toISOString()
+    };
+  };
+
+  const createDirectory = (name: string): FileSystemItem => {
+    return {
+      name,
+      type: 'directory',
+      children: [],
+      createdAt: new Date().toISOString(),
+      modifiedAt: new Date().toISOString()
+    };
+  };
+
+  const updateFileAtPath = (absPath: string, newContent: string, fs: FileSystemItem[]): FileSystemItem[] => {
+    const cloned = deepCloneFileSystem(fs);
+    const { parent, name } = splitParentAndName(absPath);
+    
+    let current = cloned;
+    if (parent !== '/' && parent !== '') {
+      const parts = parent.split('/').filter(Boolean);
+      for (const part of parts) {
+        const found = current.find(i => i.type === 'directory' && i.name === part);
+        if (!found || !found.children) return fs;
+        current = found.children;
+      }
+    }
+    
+    const file = current.find(i => i.name === name && i.type === 'file');
+    if (file) {
+      file.content = newContent;
+      file.modifiedAt = new Date().toISOString();
+    }
+    
+    return cloned;
+  };
+
+  const deepCloneFileSystem = (fs: FileSystemItem[]): FileSystemItem[] => {
+    return fs.map(item => ({
+      ...item,
+      children: item.children ? deepCloneFileSystem(item.children) : undefined
+    }));
+  };
+
+  const addItemAtPath = (absParentPath: string, item: FileSystemItem, fs: FileSystemItem[]): FileSystemItem[] => {
+    const cloned = deepCloneFileSystem(fs);
+    
+    if (absParentPath === '/' || absParentPath === '') {
+      const exists = cloned.find(i => i.name === item.name);
+      if (!exists) cloned.push(item);
+      return cloned;
+    }
+    
+    const parts = absParentPath.split('/').filter(Boolean);
+    let current = cloned;
+    
+    for (const part of parts) {
+      const found = current.find(i => i.type === 'directory' && i.name === part);
+      if (!found || !found.children) return fs;
+      current = found.children;
+    }
+    
+    const exists = current.find(i => i.name === item.name);
+    if (!exists) current.push(item);
+    return cloned;
+  };
+
+  const removeItemAtPath = (absParentPath: string, itemName: string, fs: FileSystemItem[]): FileSystemItem[] => {
+    const cloned = deepCloneFileSystem(fs);
+    
+    if (absParentPath === '/' || absParentPath === '') {
+      const idx = cloned.findIndex(i => i.name === itemName);
+      if (idx >= 0) cloned.splice(idx, 1);
+      return cloned;
+    }
+    
+    const parts = absParentPath.split('/').filter(Boolean);
+    let current = cloned;
+    
+    for (const part of parts) {
+      const found = current.find(i => i.type === 'directory' && i.name === part);
+      if (!found || !found.children) return fs;
+      current = found.children;
+    }
+    
+    const idx = current.findIndex(i => i.name === itemName);
+    if (idx >= 0) current.splice(idx, 1);
+    return cloned;
+  };
 
   const headerMessage = [
     '',
@@ -53,14 +213,12 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
 
   const bootSequence = [
     'Initializing neural interface...',
-    'Loading SyntX AI modules...',
     'Establishing secure connection...',
     'Scanning for available commands...',
     'Music system detected and ready...',
     'Firewall protocols activated...',
     '',
     'BOOT COMPLETE: Neural link established',
-    '',
   ];
 
   const commandReference = [
@@ -82,6 +240,16 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
     '║   pwd        - Print working directory                          ║',
     '║   clear      - Clear the terminal screen                        ║',
     '║   exit       - Return to the Matrix                             ║',
+    '║                                                                 ║',
+    '║   ls         - List directory contents                          ║',
+    '║   cd         - Change directory                                 ║',
+    '║   mkdir      - Create directory                                 ║',
+    '║   touch      - Create empty file                                ║',
+    '║   cat        - Display file contents                            ║',
+    '║   echo       - Write text to file                               ║',
+    '║   rm         - Remove file or directory                         ║',
+    '║   curl       - Make HTTP/HTTPS requests                         ║',
+    '║   ping       - Measure latency to a host (HTTP/HTTPS)           ║',
     '║                                                                 ║',
     '╚═════════════════════════════════════════════════════════════════╝',
     '',
@@ -106,6 +274,19 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
       '  uptime      - Show system uptime',
       '  pwd         - Print working directory',
       '  exit        - Return to the Matrix',
+      '',
+      'File System Commands:',
+      '  ls          - List directory contents',
+      '  cd [dir]    - Change directory',
+      '  mkdir [dir] - Create directory',
+      '  touch [file]- Create empty file',
+      '  cat [file]  - Display file contents',
+      '  echo [text] > [file] - Write text to file',
+      '  rm [file]   - Remove file or directory',
+      '',
+      'Network Commands:',
+      '  curl [url]  - Make HTTP/HTTPS request',
+      '  ping [host] - Measure latency to a host (HTTP/HTTPS)',
       '',
       'Type any command to get started.',
     ],
@@ -162,32 +343,30 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
       '=== TECHNICAL SKILLS MATRIX ===',
       '',
       'Core Systems:',
-      '█████████████████████ Python (95%)',
+      '█████████████████████ Centering a Div (95%)',
       '███████████████████   PyTorch (90%)',
-      '█████████████████     TensorFlow (80%)',
-      '███████████████       OpenCV (70%)',
-      '█████████████         Scikit-learn (60%)',
+      '█████████████████     Pandas (80%)',
+      '███████████████       Numpy (70%)',
+      '█████████████         Matplotlib (60%)',
       '',
       'Programming Languages:',
-      '█████████████████████ JavaScript/TypeScript (95%)',
-      '███████████████████   C++ (85%)',
-      '█████████████████     Java (75%)',
+      '█████████████████████ Python (90%)',
+      '███████████████████   JavaScript/TypeScript (65%)',
+      '█████████████████     C+++ (40%)',
       '',
       'Cloud & Infrastructure:',
       '█████████████████████ Google Cloud (95%)',
-      '███████████████████   AWS (85%)',
-      '█████████████████     Vercel (80%)',
+      '███████████████████   AWS (75%)',
       '███████████████       Cloudflare (70%)',
       '',
       'Databases:',
-      '█████████████████     PostgreSQL (80%)',
+      '█████████████████     MySQL (80%)',
       '███████████████       MongoDB (70%)',
-      '█████████████         MySQL (60%)',
     ],
     contact: [
       '=== CONTACT INFORMATION ===',
       '',
-      '📧 Email: founder@orangecat.ai',
+      '📧 Email: prithvi@orangecat.ai',
       '🐙 GitHub: github.com/Kraken2003',
       '💼 LinkedIn: linkedin.com/in/prithvichohan',
       '🌐 SyntX: syntx.dev',
@@ -243,25 +422,23 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
       '• Building sovereign AI for India',
     ],
     whoami: [
-      'prithvi@orangecat-terminal:~$ whoami',
-      'prithvi',
+      'prithvi singh chohan',
       '',
       'User privileges: sudo, docker, kubectl, python, pytorch',
       'Shell: /bin/bash',
-      'Groups: ai-engineers, founders, developers, syntx-team',
+      'Groups: ai-engineers, founders, developers, orangecat-team',
     ],
     date: [
       new Date().toString(),
     ],
     uptime: [
       'System uptime: Building AI since 2020',
-      'Models trained: 500+ LLMs fine-tuned',
-      'Lines of Python code: 500,000+',
+      'Lines of code: 500,000+',
       'SyntX users: 5,600+ developers',
-      'AI agents deployed: 50+ in production',
+      'AI agentic systems deployed: 5 in production',
     ],
     pwd: [
-      '/home/prithvi/orangecat/syntx-ai',
+      currentDirectory,
     ],
     syntx: [
       '=== SYNTX AI CODING ASSISTANT ===',
@@ -358,7 +535,69 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
       'Returning to the Matrix...',
       'Goodbye, choom.',
     ],
+    ls: [
+      '=== DIRECTORY CONTENTS ===',
+      '',
+      ...getCurrentDirectoryContents().map(item => {
+        const type = item.type === 'directory' ? 'd' : '-';
+        const size = item.type === 'file' ? (item.content?.length || 0) : '-';
+        const date = new Date(item.modifiedAt).toLocaleDateString();
+        return `${type}rwxr-xr-x 1 ${username || 'user'} users ${size.toString().padStart(8)} ${date} ${item.name}`;
+      }),
+      '',
+      `Total: ${getCurrentDirectoryContents().length} items`,
+    ],
+    cd: [
+      'Usage: cd [directory]',
+      'Change to the specified directory.',
+      'Use "cd .." to go up one level.',
+      'Use "cd /" to go to root directory.',
+    ],
+    mkdir: [
+      'Usage: mkdir [directory_name]',
+      'Create a new directory in the current location.',
+    ],
+    touch: [
+      'Usage: touch [filename]',
+      'Create a new empty file.',
+    ],
+    cat: [
+      'Usage: cat [filename]',
+      'Display the contents of a file.',
+    ],
+    echo: [
+      'Usage: echo [text] > [filename]',
+      'Write text to a file (overwrites existing content).',
+      'Example: echo "Hello World" > hello.txt',
+    ],
+    rm: [
+      'Usage: rm [filename] or rm -r [directory]',
+      'Remove a file or directory.',
+      'Use -r flag to remove directories recursively.',
+    ],
+    curl: [
+      'Usage: curl [URL]',
+      'Make an HTTP/HTTPS request to the specified URL.',
+      'Example: curl https://api.github.com/users/octocat',
+    ],
+    ping: [
+      'Usage: ping [host or URL]',
+      'Measures latency via HTTP/HTTPS request timing.',
+      'Examples:',
+      '  ping google.com',
+      '  ping https://example.com',
+    ],
   };
+
+  // Initialize file system (in-memory)
+  useEffect(() => {
+    const initialFs: FileSystemItem[] = [
+      createDirectory('home'),
+      createDirectory('tmp'),
+      createDirectory('var'),
+    ];
+    setFileSystem(initialFs);
+  }, []);
 
   // Load songs from audio directory
   useEffect(() => {
@@ -505,8 +744,284 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
       return;
     }
 
-    // Handle music commands
-    if (cmd === 'play') {
+    // Handle file system commands
+    if (cmd === 'ls') {
+      const contents = getCurrentDirectoryContents();
+      if (contents.length === 0) {
+        output = ['Directory is empty.'];
+      } else {
+        output = contents.map(item => {
+          const type = item.type === 'directory' ? 'd' : '-';
+          const size = item.type === 'file' ? (item.content?.length || 0) : '-';
+          const date = new Date(item.modifiedAt).toLocaleDateString();
+          return `${type}rwxr-xr-x 1 ${username || 'user'} users ${size.toString().padStart(8)} ${date} ${item.name}`;
+        });
+      }
+    } else if (cmd.startsWith('cd ')) {
+      const targetPath = cmd.slice(3).trim();
+      
+      if (!targetPath || targetPath === '~') {
+        // Go to home directory
+        setCurrentDirectory('/home');
+        output = [`Changed directory to /home`];
+      } else {
+        // Use normalizePath for proper path handling
+        const newPath = normalizePath(currentDirectory, targetPath);
+        
+        // Check if directory exists
+        const targetDir = findItemInPath(newPath, fileSystem);
+        if (targetDir && targetDir.type === 'directory') {
+          setCurrentDirectory(newPath);
+          output = [`Changed directory to ${newPath}`];
+        } else {
+          output = [`cd: ${targetPath}: No such file or directory`];
+        }
+      }
+    } else if (cmd.startsWith('mkdir ')) {
+      const dirNameRaw = cmd.slice(6).trim();
+      if (!dirNameRaw) {
+        output = ['mkdir: missing operand'];
+      } else {
+        const absPath = normalizePath(currentDirectory, dirNameRaw);
+        const { parent, name } = splitParentAndName(absPath);
+        if (!name) {
+          output = ['mkdir: invalid directory name'];
+        } else {
+          const newDir = createDirectory(name);
+          const updatedFs = addItemAtPath(parent, newDir, fileSystem);
+          setFileSystem(updatedFs);
+          output = [`Created directory: ${name}`];
+        }
+      }
+    } else if (cmd.startsWith('touch ')) {
+      const fileRaw = cmd.slice(6).trim();
+      if (!fileRaw) {
+        output = ['touch: missing file operand'];
+      } else {
+        const absPath = normalizePath(currentDirectory, fileRaw);
+        const { parent, name } = splitParentAndName(absPath);
+        const newFile = createFile(name);
+        const updatedFs = addItemAtPath(parent, newFile, fileSystem);
+        setFileSystem(updatedFs);
+        output = [`Created file: ${name}`];
+      }
+    } else if (cmd.startsWith('cat ')) {
+      const fileRaw = cmd.slice(4).trim();
+      if (!fileRaw) {
+        output = ['cat: missing file operand'];
+      } else {
+        const absPath = normalizePath(currentDirectory, fileRaw);
+        const { name } = splitParentAndName(absPath);
+        const file = findItemInPath(absPath, fileSystem);
+        if (file && file.type === 'file') {
+          output = file.content ? file.content.split('\n') : ['(empty file)'];
+        } else {
+          output = [`cat: ${name}: No such file`];
+        }
+      }
+    } else if (cmd.includes(' > ')) {
+      // Handle echo command with redirection
+      const parts = cmd.split(' > ');
+      if (parts.length === 2) {
+        let text = parts[0].trim();
+        const fileRaw = parts[1].trim();
+        
+        // Handle echo command specifically
+        if (text.startsWith('echo ')) {
+          text = text.slice(5).trim();
+          // Remove quotes if present
+          if ((text.startsWith('"') && text.endsWith('"')) || (text.startsWith("'") && text.endsWith("'"))) {
+            text = text.slice(1, -1);
+          }
+        }
+        
+        if (fileRaw) {
+          const absPath = normalizePath(currentDirectory, fileRaw);
+          const { parent, name } = splitParentAndName(absPath);
+          
+          // Check if file already exists
+          const existingFile = findItemInPath(absPath, fileSystem);
+          let updatedFs: FileSystemItem[];
+          
+          if (existingFile && existingFile.type === 'file') {
+            // Update existing file
+            updatedFs = updateFileAtPath(absPath, text, fileSystem);
+          } else {
+            // Create new file
+            const newFile = createFile(name, text);
+            updatedFs = addItemAtPath(parent, newFile, fileSystem);
+          }
+          
+          setFileSystem(updatedFs);
+          output = [`Written to file: ${name}`];
+        } else {
+          output = ['echo: missing file operand'];
+        }
+      }
+    } else if (cmd.startsWith('rm ')) {
+      const args = cmd.slice(3).trim().split(/\s+/);
+      const flags = args.filter(arg => arg.startsWith('-'));
+      const files = args.filter(arg => !arg.startsWith('-'));
+      
+      const isRecursive = flags.some(flag => flag.includes('r'));
+      
+      if (files.length === 0) {
+        output = ['rm: missing operand'];
+      } else {
+        const fileRaw = files[0]; // Handle first file for now
+        const absPath = normalizePath(currentDirectory, fileRaw);
+        const { parent, name } = splitParentAndName(absPath);
+        const item = findItemInPath(absPath, fileSystem);
+        
+        if (!item) {
+          output = [`rm: ${fileRaw}: No such file or directory`];
+        } else if (item.type === 'directory' && !isRecursive) {
+          output = [`rm: ${fileRaw}: is a directory (use -r flag)`];
+        } else {
+          const updatedFs = removeItemAtPath(parent, name, fileSystem);
+          setFileSystem(updatedFs);
+          output = [`Removed: ${name}`];
+        }
+      }
+    } else if (cmd.startsWith('curl ')) {
+      const url = cmd.slice(5).trim();
+      if (!url) {
+        output = ['curl: missing URL operand'];
+      } else {
+        // Create initial command in history with "Making HTTP request..."
+        const initialCommand = { input: command, output: ['Making HTTP request...'] };
+        setHistory(prev => [...prev, initialCommand]);
+        
+        try {
+          const start = performance.now();
+          const response = await fetch(url);
+          const end = performance.now();
+          const data = await response.text();
+          
+          // Update the command output with the response
+          const finalOutput = [
+            `HTTP ${response.status} ${response.statusText}`,
+            `Content-Type: ${response.headers.get('content-type') || 'unknown'}`,
+            `Request took: ${(end - start).toFixed(1)} ms`,
+            '',
+            data.length > 1000 ? data.substring(0, 1000) + '... (truncated)' : data
+          ];
+          
+          // Update the history with final output
+          setHistory(prev => {
+            const updated = [...prev];
+            updated[updated.length - 1] = { input: command, output: finalOutput };
+            return updated;
+          });
+          
+          return; // Early return to prevent adding another command to history
+        } catch (error) {
+          // Update with error message
+          setHistory(prev => {
+            const updated = [...prev];
+            updated[updated.length - 1] = {
+              input: command,
+              output: [`curl: error: ${error instanceof Error ? error.message : 'Unknown error'}`]
+            };
+            return updated;
+          });
+          return; // Early return to prevent adding another command to history
+        }
+      }
+    } else if (cmd.startsWith('ping ')) {
+      const target = cmd.slice(5).trim();
+      if (!target) {
+        output = ['ping: missing host operand'];
+      } else {
+        const url = target.startsWith('http://') || target.startsWith('https://')
+          ? target
+          : `https://${target}`;
+        
+        // Create initial command in history with ping header
+        const initialCommand = {
+          input: command,
+          output: [`PING ${target} via HTTP/HTTPS:`, 'Starting ping test...']
+        };
+        setHistory(prev => [...prev, initialCommand]);
+        
+        const attempts = 4;
+        const times: number[] = [];
+        const replies: string[] = [];
+        
+        for (let i = 0; i < attempts; i++) {
+          const start = performance.now();
+          try {
+            // Use HEAD to minimize payload, fallback to GET if blocked
+            let res = await fetch(url, { method: 'HEAD', cache: 'no-store' });
+            if (!res.ok && res.status === 405) {
+              res = await fetch(url, { method: 'GET', cache: 'no-store' });
+            }
+            const end = performance.now();
+            const time = end - start;
+            times.push(time);
+            replies.push(`  reply ${i + 1}: time=${time.toFixed(1)} ms`);
+            
+            // Update output with each reply in real-time
+            setHistory(prev => {
+              const updated = [...prev];
+              updated[updated.length - 1] = {
+                input: command,
+                output: [
+                  `PING ${target} via HTTP/HTTPS:`,
+                  ...replies
+                ]
+              };
+              return updated;
+            });
+            
+            // Small delay to show streaming effect
+            await new Promise(resolve => setTimeout(resolve, 100));
+          } catch (e) {
+            const end = performance.now();
+            const time = end - start;
+            times.push(time);
+            replies.push(`  reply ${i + 1}: time=${time.toFixed(1)} ms (error)`);
+            
+            // Update output with each reply in real-time
+            setHistory(prev => {
+              const updated = [...prev];
+              updated[updated.length - 1] = {
+                input: command,
+                output: [
+                  `PING ${target} via HTTP/HTTPS:`,
+                  ...replies
+                ]
+              };
+              return updated;
+            });
+            
+            await new Promise(resolve => setTimeout(resolve, 100));
+          }
+        }
+        
+        // Calculate final stats
+        const min = Math.min(...times);
+        const max = Math.max(...times);
+        const avg = times.reduce((a, b) => a + b, 0) / times.length;
+        
+        // Final update with stats
+        setHistory(prev => {
+          const updated = [...prev];
+          updated[updated.length - 1] = {
+            input: command,
+            output: [
+              `PING ${target} via HTTP/HTTPS:`,
+              ...replies,
+              `--- stats ---`,
+              `min/avg/max = ${min.toFixed(1)}/${avg.toFixed(1)}/${max.toFixed(1)} ms`,
+            ]
+          };
+          return updated;
+        });
+        
+        return; // Early return to prevent adding another command to history
+      }
+    } else if (cmd === 'play') {
       if (songs.length === 0) {
         output = ['No songs available. Type "music" to see available songs.'];
       } else if (audioRef.current) {
@@ -687,14 +1202,18 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
                         line.includes('===') ? '#00FFFF' :
                         line.includes('█') ? '#FF00FF' :
                         line.includes('•') || line.includes('⚡') || line.includes('🚀') ? '#00FFFF' :
-                        // Command lines (containing " - " for descriptions)
-                        (line.includes(' - ') && (line.includes('help') || line.includes('about') || line.includes('projects') ||
-                        line.includes('skills') || line.includes('experience') || line.includes('syntx') ||
-                        line.includes('music') || line.includes('contact') || line.includes('whoami') ||
-                        line.includes('date') || line.includes('uptime') || line.includes('pwd') ||
-                        line.includes('clear') || line.includes('exit') || line.includes('play'))) ? '#dc2626' :
-                        // Command names in help output
-                        (/^\s*[a-z]+\s*-/.test(line) && !line.includes('Available commands:') && !line.includes('Type any command')) ? '#dc2626' :
+                        // Command lines in help output (any line with " - " that looks like a command description)
+                        (line.includes(' - ') &&
+                         (line.includes('about') || line.includes('syntx') || line.includes('projects') ||
+                          line.includes('skills') || line.includes('experience') || line.includes('music') ||
+                          line.includes('contact') || line.includes('whoami') || line.includes('date') ||
+                          line.includes('uptime') || line.includes('pwd') || line.includes('clear') ||
+                          line.includes('exit') || line.includes('ls') || line.includes('cd') ||
+                          line.includes('mkdir') || line.includes('touch') || line.includes('cat') ||
+                          line.includes('echo') || line.includes('rm') || line.includes('curl') ||
+                          line.includes('ping') || line.includes('play'))) ? '#22c55e' :
+                        // All command description lines (starts with spaces, has command name and dash)
+                        (/^\s+[a-zA-Z0-9\[\]_\s]+\s+-\s+/.test(line) && !line.includes('Available commands:') && !line.includes('Type any command')) ? '#22c55e' :
                         '#E0E0E0',
                   fontSize: (line.includes('███╗░░██╗███████╗░█████╗░') ||
                            line.includes('████╗░██║██╔════╝██╔══██╗') ||
