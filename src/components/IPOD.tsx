@@ -15,48 +15,12 @@ export default function IPOD() {
   const [isLoading, setIsLoading] = useState(true);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // Auto-load songs using Vite's glob import (TRULY NO HARDCODING!)
+  // Load songs from manifest (works reliably in both dev and production)
   useEffect(() => {
     const loadSongs = async () => {
       try {
-        // Use Vite's import.meta.glob to automatically find all MP3 files at build time
-        const audioModules = (import.meta as any).glob('./audio/*.mp3', { query: '?url', import: 'default' });
-        const imageModules = (import.meta as any).glob('./audio/*.{jpg,jpeg,png,webp}', { query: '?url', import: 'default' });
-
-        const detectedSongs: Song[] = [];
-
-        // Process each audio file found by Vite
-        for (const [path, moduleLoader] of Object.entries(audioModules)) {
-          const audioUrl = await (moduleLoader as () => Promise<string>)();
-          const fileName = path.split('/').pop()?.replace('.mp3', '') || '';
-
-          // Convert filename to readable song name
-          const songName = fileName.replace(/_/g, ' ');
-
-          // Find matching image using Vite's glob
-          let imageSrc = '';
-          const possibleImagePaths = [
-            `./audio/${fileName}.jpg`,
-            `./audio/${fileName}.jpeg`,
-            `./audio/${fileName}.png`,
-            `./audio/${fileName}.webp`
-          ];
-
-          for (const imgPath of possibleImagePaths) {
-            if (imageModules[imgPath]) {
-              imageSrc = await (imageModules[imgPath] as () => Promise<string>)();
-              break;
-            }
-          }
-
-          detectedSongs.push({
-            name: songName,
-            audioSrc: audioUrl,
-            imageSrc: imageSrc
-          });
-        }
-
-        setSongs(detectedSongs);
+        const { songs } = await import('../songManifest');
+        setSongs(songs);
         setIsLoading(false);
       } catch (error) {
         console.error('Error loading songs:', error);

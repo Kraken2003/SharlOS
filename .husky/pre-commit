@@ -1,0 +1,9 @@
+#!/bin/sh
+echo "🎵 Husky pre-commit: Generating song manifest..."
+npm run generate-songs
+
+echo "📝 Husky pre-commit: Adding updated manifest to git..."
+git add src/songManifest.ts
+
+echo "✅ Husky pre-commit: All checks passed!"
+

@@ -12,9 +12,9 @@ export default function App() {
   useEffect(() => {
     const path = window.location.pathname;
     
-    if (path === '/SharlOS/redpill' || path === '/redpill') {
+    if (path === '/redpill' || path === '/SharlOS/redpill') {
       setCurrentScreen('terminal');
-    } else if (path === '/SharlOS/bluepill' || path === '/bluepill') {
+    } else if (path === '/bluepill' || path === '/SharlOS/bluepill') {
       setCurrentScreen('cyberpunk');
     } else {
       setCurrentScreen('matrix');
@@ -24,14 +24,15 @@ export default function App() {
   // Update URL when screen changes
   useEffect(() => {
     const path = window.location.pathname;
-    const basePath = '/SharlOS';
+    // Detect if we're on GitHub Pages by checking if path starts with /SharlOS/
+    const basePath = path.startsWith('/SharlOS/') ? '/SharlOS' : '';
     
-    if (currentScreen === 'terminal' && path !== `${basePath}/redpill` && path !== '/redpill') {
+    if (currentScreen === 'terminal' && !path.includes('/redpill')) {
       window.history.pushState({}, '', `${basePath}/redpill`);
-    } else if (currentScreen === 'cyberpunk' && path !== `${basePath}/bluepill` && path !== '/bluepill') {
+    } else if (currentScreen === 'cyberpunk' && !path.includes('/bluepill')) {
       window.history.pushState({}, '', `${basePath}/bluepill`);
     } else if (currentScreen === 'matrix' && path !== basePath && path !== '/') {
-      window.history.pushState({}, '', basePath);
+      window.history.pushState({}, '', basePath || '/');
     }
   }, [currentScreen]);
 
@@ -40,9 +41,9 @@ export default function App() {
     const handlePopState = () => {
       const path = window.location.pathname;
       
-      if (path === '/SharlOS/redpill' || path === '/redpill') {
+      if (path === '/redpill' || path === '/SharlOS/redpill') {
         setCurrentScreen('terminal');
-      } else if (path === '/SharlOS/bluepill' || path === '/bluepill') {
+      } else if (path === '/bluepill' || path === '/SharlOS/bluepill') {
         setCurrentScreen('cyberpunk');
       } else {
         setCurrentScreen('matrix');
