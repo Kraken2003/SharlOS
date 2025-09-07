@@ -604,8 +604,8 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
     const loadSongs = async () => {
       try {
         // Use Vite's import.meta.glob to automatically find all MP3 files at build time
-        const audioModules = (import.meta as any).glob('/public/audio/*.mp3', { query: '?url', import: 'default' });
-        const imageModules = (import.meta as any).glob('/public/audio/*.{jpg,jpeg,png,webp}', { query: '?url', import: 'default' });
+        const audioModules = (import.meta as any).glob('./audio/*.mp3', { query: '?url', import: 'default' });
+        const imageModules = (import.meta as any).glob('./audio/*.{jpg,jpeg,png,webp}', { query: '?url', import: 'default' });
 
         const detectedSongs: Song[] = [];
 
@@ -620,10 +620,10 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
           // Find matching image using Vite's glob
           let imageSrc = '';
           const possibleImagePaths = [
-            `/public/audio/${fileName}.jpg`,
-            `/public/audio/${fileName}.jpeg`,
-            `/public/audio/${fileName}.png`,
-            `/public/audio/${fileName}.webp`
+            `./audio/${fileName}.jpg`,
+            `./audio/${fileName}.jpeg`,
+            `./audio/${fileName}.png`,
+            `./audio/${fileName}.webp`
           ];
 
           for (const imgPath of possibleImagePaths) {

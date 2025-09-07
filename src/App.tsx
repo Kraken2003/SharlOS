@@ -12,9 +12,9 @@ export default function App() {
   useEffect(() => {
     const path = window.location.pathname;
     
-    if (path === '/redpill') {
+    if (path === '/SharlOS/redpill' || path === '/redpill') {
       setCurrentScreen('terminal');
-    } else if (path === '/bluepill') {
+    } else if (path === '/SharlOS/bluepill' || path === '/bluepill') {
       setCurrentScreen('cyberpunk');
     } else {
       setCurrentScreen('matrix');
@@ -24,13 +24,14 @@ export default function App() {
   // Update URL when screen changes
   useEffect(() => {
     const path = window.location.pathname;
+    const basePath = '/SharlOS';
     
-    if (currentScreen === 'terminal' && path !== '/redpill') {
-      window.history.pushState({}, '', '/redpill');
-    } else if (currentScreen === 'cyberpunk' && path !== '/bluepill') {
-      window.history.pushState({}, '', '/bluepill');
-    } else if (currentScreen === 'matrix' && path !== '/') {
-      window.history.pushState({}, '', '/');
+    if (currentScreen === 'terminal' && path !== `${basePath}/redpill` && path !== '/redpill') {
+      window.history.pushState({}, '', `${basePath}/redpill`);
+    } else if (currentScreen === 'cyberpunk' && path !== `${basePath}/bluepill` && path !== '/bluepill') {
+      window.history.pushState({}, '', `${basePath}/bluepill`);
+    } else if (currentScreen === 'matrix' && path !== basePath && path !== '/') {
+      window.history.pushState({}, '', basePath);
     }
   }, [currentScreen]);
 
@@ -39,9 +40,9 @@ export default function App() {
     const handlePopState = () => {
       const path = window.location.pathname;
       
-      if (path === '/redpill') {
+      if (path === '/SharlOS/redpill' || path === '/redpill') {
         setCurrentScreen('terminal');
-      } else if (path === '/bluepill') {
+      } else if (path === '/SharlOS/bluepill' || path === '/bluepill') {
         setCurrentScreen('cyberpunk');
       } else {
         setCurrentScreen('matrix');
