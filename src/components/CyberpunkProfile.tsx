@@ -432,7 +432,7 @@ export default function CyberpunkProfile({ onBack }: { onBack?: () => void }) {
                       <div className="border border-yellow-400/20 p-4 bg-black/50">
                         <div className="flex justify-between items-start mb-3">
                           <h3 className="text-yellow-400">SyntX AI Unplugged Event</h3>
-                          <span className="text-xs text-green-400">Gurugram, India • 1 week ago</span>
+                          <span className="text-xs text-green-400">Gurugram, India • 2 weeks ago</span>
                         </div>
                         <p className="text-cyan-300 text-sm mb-3">
                           Successfully organized and hosted SyntX AI Unplugged event in Gurugram with 40k+ 
@@ -471,29 +471,6 @@ export default function CyberpunkProfile({ onBack }: { onBack?: () => void }) {
                           </span>
                           <span className="text-xs text-red-400 bg-red-400/10 px-2 py-1 border border-red-400/30">
                             Snapdragon X
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="border border-orange-400/20 p-4 bg-orange-900/10">
-                        <div className="flex justify-between items-start mb-3">
-                          <h3 className="text-orange-400">Independence Day AI Initiative</h3>
-                          <span className="text-xs text-green-400">India • 3 weeks ago</span>
-                        </div>
-                        <p className="text-cyan-300 text-sm mb-3">
-                          Launched "Sovereign AI for India" campaign, making coding accessible in 120+ languages 
-                          from Kashmir to Kanyakumari. SyntX now supports native Indian languages, breaking 
-                          English-only barriers in tech education and development.
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          <span className="text-xs text-orange-400 bg-orange-400/10 px-2 py-1 border border-orange-400/30">
-                            Sovereign AI
-                          </span>
-                          <span className="text-xs text-orange-400 bg-orange-400/10 px-2 py-1 border border-orange-400/30">
-                            Multilingual Support
-                          </span>
-                          <span className="text-xs text-orange-400 bg-orange-400/10 px-2 py-1 border border-orange-400/30">
-                            Made in India
                           </span>
                         </div>
                       </div>
