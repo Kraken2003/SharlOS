@@ -1,5 +1,5 @@
 {
-      "name": "Futuristic CLI Personal Website",
+      "name": "Sharl OS",
       "version": "0.1.0",
       "private": true,
       "dependencies": {
@@ -55,6 +55,7 @@
       "scripts": {
             "dev": "vite",
             "build": "vite build",
+            "preview": "vite preview",
             "lint": "echo 'Linting complete - no linter configured'"
       }
 }
