@@ -21,27 +21,71 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [bootSequenceIndex, setBootSequenceIndex] = useState(0);
+  const [showBootComplete, setShowBootComplete] = useState(false);
+  const [showCliPrompt, setShowCliPrompt] = useState(false);
+  const [username, setUsername] = useState('');
+  const [awaitingUsername, setAwaitingUsername] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  const welcomeMessage = [
-    '╔═══════════════════════════════════════════════════════════════╗',
-    '║                 ORANGECAT TECHNOLOGIES TERMINAL               ║',
-    '║                    SYNTX SYSTEM v2024.1                       ║',
-    '║                                                               ║',
-    '║             Welcome to Prithvi Chohan\'s Terminal             ║',
-    '║                                                               ║',
-    '║    Type "help" for available commands                         ║',
-    '║    Type "about" to learn about SyntX and Orangecat            ║',
-    '║    Type "music" to access the music player                    ║',
-    '║    Type "exit" to return to the Matrix                        ║',
-    '║                                                               ║',
-    '╚═══════════════════════════════════════════════════════════════╝',
+  const headerMessage = [
     '',
-    'AI-powered development environment initialized...',
-    'Loading Prithvi\'s neural profile...',
-    'Music system loaded...',
+    '╔══════════════════════════════════════════════════════════════════╗',
+    '║                                                                  ║',
+    '║                    ORANGECAT TECHNOLOGIES                        ║',
+    '║                   ════════════════════════                       ║',
+    '║                    SYNTX SYSTEM v2025.3                          ║',
+    '║                   ════════════════════════                       ║',
+    '║                                                                  ║',
+    '║  ███╗░░██╗███████╗░█████╗░  ░██████╗██╗░░░██╗███╗░░██╗████████╗██╗░░██╗  ║',
+    '║  ████╗░██║██╔════╝██╔══██╗  ██╔════╝╚██╗░██╔╝████╗░██║╚══██╔══╝╚██╗██╔╝  ║',
+    '║  ██╔██╗██║█████╗░░██║░░██║  ╚█████╗░░╚████╔╝░██╔██╗██║░░░██║░░░░╚███╔╝░  ║',
+    '║  ██║╚████║██╔══╝░░██║░░██║  ░╚═══██╗░░╚██╔╝░░██║╚████║░░░██║░░░░██╔██╗░  ║',
+    '║  ██║░╚███║███████╗╚█████╔╝  ██████╔╝░░░██║░░░██║░╚███║░░░██║░░░██╔╝╚██╗  ║',
+    '║  ╚═╝░░╚══╝╚══════╝░╚════╝░  ╚═════╝░░░░╚═╝░░░╚═╝░░╚══╝░░░╚═╝░░░╚═╝░░╚═╝  ║',
+    '║                                                                  ║',
+    '║               Prithvi Chohan\'s Private Terminal                  ║',
+    '║                                                                  ║',
+    '╚══════════════════════════════════════════════════════════════════╝',
+  ];
+
+  const bootSequence = [
+    'Initializing neural interface...',
+    'Loading SyntX AI modules...',
+    'Establishing secure connection...',
+    'Scanning for available commands...',
+    'Music system detected and ready...',
+    'Firewall protocols activated...',
+    '',
+    'BOOT COMPLETE: Neural link established',
+    '',
+  ];
+
+  const commandReference = [
+    '',
+    '╔══════════════════ AVAILABLE COMMANDS ═══════════════════════════╗',
+    '║                                                                 ║',
+    '║   help       - Display all available commands                   ║',
+    '║   about      - Learn about Prithvi and Orangecat Technologies   ║',
+    '║   projects   - View current projects and ventures               ║',
+    '║   skills     - Display technical skills and expertise           ║',
+    '║   experience - View professional background                     ║',
+    '║   syntx      - Information about SyntX AI assistant             ║',
+    '║   music      - Access the integrated music player               ║',
+    '║   contact    - Get contact information and links                ║',
+    '║                                                                 ║',
+    '║   whoami     - Display current user information                 ║',
+    '║   date       - Show current date and time                       ║',
+    '║   uptime     - Display system uptime statistics                 ║',
+    '║   pwd        - Print working directory                          ║',
+    '║   clear      - Clear the terminal screen                        ║',
+    '║   exit       - Return to the Matrix                             ║',
+    '║                                                                 ║',
+    '╚═════════════════════════════════════════════════════════════════╝',
+    '',
+    'Type any command and press Enter to begin your journey...',
     '',
   ];
 
@@ -366,14 +410,40 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
     loadSongs();
   }, []);
 
+  // Boot sequence animation
   useEffect(() => {
-    // Show welcome message on mount
-    setHistory([{ input: '', output: welcomeMessage }]);
-    // Focus input
-    if (inputRef.current) {
+    if (bootSequenceIndex === 0) {
+      // Start with header message (which now includes the ASCII art)
+      setHistory([{ input: '', output: headerMessage }]);
+      setBootSequenceIndex(1);
+    } else if (bootSequenceIndex > 0 && bootSequenceIndex <= bootSequence.length) {
+      const timer = setTimeout(() => {
+        setHistory(prev => {
+          const lastCommand = prev[prev.length - 1];
+          const newOutput = [...lastCommand.output, bootSequence[bootSequenceIndex - 1]];
+          return [{ ...lastCommand, output: newOutput }];
+        });
+        setBootSequenceIndex(prev => prev + 1);
+      }, 800); // 800ms delay between each boot sequence line
+
+      return () => clearTimeout(timer);
+    } else if (bootSequenceIndex === bootSequence.length + 1 && !showBootComplete) {
+      // Boot sequence complete, now wait for username input
+      const timer = setTimeout(() => {
+        setAwaitingUsername(true);
+        setShowBootComplete(true);
+      }, 1500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [bootSequenceIndex, showBootComplete]);
+
+  // Focus input when CLI prompt becomes visible
+  useEffect(() => {
+    if ((awaitingUsername || showCliPrompt) && inputRef.current) {
       inputRef.current.focus();
     }
-  }, []);
+  }, [awaitingUsername, showCliPrompt]);
 
   // Audio event handlers
   useEffect(() => {
@@ -418,9 +488,10 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
 
   const handleCommand = async (command: string) => {
     const cmd = command.toLowerCase().trim();
-    
+
     if (cmd === 'clear') {
-      setHistory([]);
+      // Keep the header message visible when clearing
+      setHistory([{ input: '', output: headerMessage }]);
       return;
     }
 
@@ -469,7 +540,37 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (currentInput.trim()) {
+    if (awaitingUsername) {
+      // Handle username input
+      const inputUsername = currentInput.trim();
+      let processedUsername = '~';
+
+      if (inputUsername) {
+        // Handle multiple words by joining with no spaces and converting to lowercase
+        processedUsername = inputUsername.replace(/\s+/g, '').toLowerCase();
+        // If it becomes empty after processing, use ~
+        if (!processedUsername) {
+          processedUsername = '~';
+        }
+      }
+
+      setUsername(processedUsername);
+      setAwaitingUsername(false);
+      setShowCliPrompt(true);
+
+      // Add welcome message with username, keeping header visible
+      const welcomeMessage = [
+        ...headerMessage,
+        '',
+        `Neural signature "${processedUsername}" registered successfully.`,
+        `Welcome to SyntX Terminal, ${processedUsername}!`,
+        '',
+        ...commandReference
+      ];
+
+      setHistory([{ input: '', output: welcomeMessage }]);
+      setCurrentInput('');
+    } else if (currentInput.trim()) {
       handleCommand(currentInput);
       setCurrentInput('');
     }
@@ -481,26 +582,27 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
     }
   };
 
+  const handleTerminalClick = () => {
+    if ((awaitingUsername || showCliPrompt) && inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+
   return (
-    <div className="h-screen bg-black text-green-400 font-mono overflow-hidden">
-      
-      <div 
+    <div
+      className="h-screen bg-black text-green-400 font-mono overflow-hidden"
+      onClick={handleTerminalClick}
+    >
+      <div
         ref={terminalRef}
         className="h-full overflow-y-auto p-4 scrollbar-thin scrollbar-track-black scrollbar-thumb-green-800"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(0, 255, 0, 0.03) 50%, transparent 50%),
-            linear-gradient(90deg, transparent 50%, rgba(0, 255, 0, 0.03) 50%)
-          `,
-          backgroundSize: '2px 2px'
-        }}
       >
         {/* Terminal Output */}
         {history.map((command, index) => (
           <div key={index} className="mb-2">
             {command.input && (
               <div className="flex">
-                <span className="text-yellow-400">prithvi@orangecat</span>
+                <span style={{ color: '#ff6b35' }}>{username || '~'}</span>
                 <span className="text-white">:</span>
                 <span className="text-blue-400">~</span>
                 <span className="text-white">$ </span>
@@ -508,31 +610,100 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
               </div>
             )}
             {command.output.map((line, lineIndex) => (
-              <div key={lineIndex} className="whitespace-pre-wrap">
+              <div
+                key={lineIndex}
+                className="whitespace-pre-wrap"
+                style={{
+                  color: line.includes('███╗░░██╗███████╗░█████╗░') ||
+                        line.includes('████╗░██║██╔════╝██╔══██╗') ||
+                        line.includes('██╔██╗██║█████╗░░██║░░██║') ||
+                        line.includes('██║╚████║██╔══╝░░██║░░██║') ||
+                        line.includes('██║░╚███║███████╗╚█████╔╝') ||
+                        line.includes('╚═╝░░╚══╝╚══════╝░╚════╝░') ? '#FF00FF' :
+                        line.includes('ORANGECAT TECHNOLOGIES') ? '#22c55e' :
+                        line.includes('SYNTX SYSTEM') ? '#22c55e' :
+                        line.includes('Welcome to the Matrix') ? '#22c55e' :
+                        line.includes('╔') || line.includes('╗') || line.includes('║') || line.includes('╚') || line.includes('╝') || line.includes('═') ? '#22c55e' :
+                        line.includes('===') ? '#00FFFF' :
+                        line.includes('█') ? '#FF00FF' :
+                        line.includes('•') || line.includes('⚡') || line.includes('🚀') ? '#00FFFF' :
+                        // Command lines (containing " - " for descriptions)
+                        (line.includes(' - ') && (line.includes('help') || line.includes('about') || line.includes('projects') ||
+                        line.includes('skills') || line.includes('experience') || line.includes('syntx') ||
+                        line.includes('music') || line.includes('contact') || line.includes('whoami') ||
+                        line.includes('date') || line.includes('uptime') || line.includes('pwd') ||
+                        line.includes('clear') || line.includes('exit'))) ? '#dc2626' :
+                        // Command names in help output
+                        (/^\s*[a-z]+\s*-/.test(line) && !line.includes('Available commands:') && !line.includes('Type any command')) ? '#dc2626' :
+                        '#E0E0E0',
+                  fontSize: (line.includes('███╗░░██╗███████╗░█████╗░') ||
+                           line.includes('████╗░██║██╔════╝██╔══██╗') ||
+                           line.includes('██╔██╗██║█████╗░░██║░░██║') ||
+                           line.includes('██║╚████║██╔══╝░░██║░░██║') ||
+                           line.includes('██║░╚███║███████╗╚█████╔╝') ||
+                           line.includes('╚═╝░░╚══╝╚══════╝░╚════╝░')) ? '0.9rem' : undefined,
+                  textShadow: (line.includes('███╗░░██╗███████╗░█████╗░') ||
+                             line.includes('████╗░██║██╔════╝██╔══██╗') ||
+                             line.includes('██╔██╗██║█████╗░░██║░░██║') ||
+                             line.includes('██║╚████║██╔══╝░░██║░░██║') ||
+                             line.includes('██║░╚███║███████╗╚█████╔╝') ||
+                             line.includes('╚═╝░░╚══╝╚══════╝░╚════╝░')) ? '0 0 10px #FF00FF, 0 0 15px #FF00FF' : 'none',
+                  fontWeight: (line.includes('███╗░░██╗███████╗░█████╗░') ||
+                             line.includes('████╗░██║██╔════╝██╔══██╗') ||
+                             line.includes('██╔██╗██║█████╗░░██║░░██║') ||
+                             line.includes('██║╚████║██╔══╝░░██║░░██║') ||
+                             line.includes('██║░╚███║███████╗╚█████╔╝') ||
+                             line.includes('╚═╝░░╚══╝╚══════╝░╚════╝░')) ? 'bold' : 'normal'
+                }}
+              >
                 {line}
               </div>
             ))}
           </div>
         ))}
-        
-        {/* Input Line */}
-        <form onSubmit={handleSubmit} className="flex">
-          <span className="text-yellow-400">prithvi@orangecat</span>
-          <span className="text-white">:</span>
-          <span className="text-blue-400">~</span>
-          <span className="text-white">$ </span>
-          <input
-            ref={inputRef}
-            type="text"
-            value={currentInput}
-            onChange={(e) => setCurrentInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="flex-1 bg-transparent outline-none text-green-400 caret-green-400"
-            autoFocus
-            spellCheck={false}
-          />
-          <span className="animate-pulse text-green-400">█</span>
-        </form>
+
+        {/* Username Input Line - Only show during username input */}
+        {awaitingUsername && (
+          <form onSubmit={handleSubmit} className="flex">
+            <span className="text-cyan-400">neural-signature</span>
+            <span className="text-white">:</span>
+            <span className="text-blue-400">~</span>
+            <span className="text-white">$ </span>
+            <input
+              ref={inputRef}
+              type="text"
+              value={currentInput}
+              onChange={(e) => setCurrentInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="flex-1 bg-transparent outline-none text-green-400 caret-green-400"
+              autoFocus
+              spellCheck={false}
+              placeholder="Enter your username..."
+            />
+            <span className="animate-pulse text-green-400">█</span>
+          </form>
+        )}
+
+        {/* Input Line - Only show after boot sequence completes */}
+        {showCliPrompt && (
+          <form onSubmit={handleSubmit} className="flex">
+            <span style={{ color: '#ff6b35' }}>{username || '~'}</span>
+            <span className="text-white">:</span>
+            <span className="text-blue-400">~</span>
+            <span className="text-white">$ </span>
+            <input
+              ref={inputRef}
+              type="text"
+              value={currentInput}
+              onChange={(e) => setCurrentInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="flex-1 bg-transparent outline-none text-green-400 caret-green-400"
+              autoFocus
+              spellCheck={false}
+            />
+            <span className="animate-pulse text-green-400">█</span>
+          </form>
+        )}
       </div>
       
       {/* Hidden Audio Element */}
