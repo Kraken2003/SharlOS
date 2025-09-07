@@ -23,14 +23,14 @@ function generateSongManifest() {
       for (const ext of imageExtensions) {
         const imageFile = baseName + ext;
         if (files.includes(imageFile)) {
-          imageSrc = `/audio/${imageFile}`;
+          imageSrc = `audio/${imageFile}`;
           break;
         }
       }
       
       return {
         name: baseName,
-        audioSrc: `/audio/${audioFile}`,
+        audioSrc: `audio/${audioFile}`,
         imageSrc: imageSrc
       };
     });

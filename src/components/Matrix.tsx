@@ -94,7 +94,7 @@ export default function Matrix({ onPillChoice }: MatrixProps) {
         {/* Morpheus Image with Pills */}
         <div className="relative">
           <img
-            src="/morpheus.png"
+            src={`${import.meta.env.BASE_URL}morpheus.png`}
             alt="Morpheus"
             className="w-[70vw] max-w-xs sm:max-w-md md:w-96 h-auto mx-auto opacity-90 rounded-lg shadow-lg border border-green-400/30"
           />
@@ -123,7 +123,7 @@ export default function Matrix({ onPillChoice }: MatrixProps) {
                   }}
                 >
                   <img
-                    src="/bluepill.png"
+                    src={`${import.meta.env.BASE_URL}bluepill.png`}
                     alt="Blue Pill"
                     className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 opacity-0 group-hover:opacity-100 transition-all duration-700 ease-in-out drop-shadow-2xl transform translate-y-4 group-hover:-translate-y-12 group-hover:scale-125"
                     style={{
@@ -135,7 +135,7 @@ export default function Matrix({ onPillChoice }: MatrixProps) {
                   {/* Floating glow halo */}
                   <div className="absolute inset-0 group-hover:animate-pulse">
                     <img
-                      src="/bluepill.png"
+                      src={`${import.meta.env.BASE_URL}bluepill.png`}
                       alt=""
                       className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 opacity-0 group-hover:opacity-15 transition-all duration-700 ease-in-out absolute"
                       style={{
@@ -200,7 +200,7 @@ export default function Matrix({ onPillChoice }: MatrixProps) {
                   }}
                 >
                   <img
-                    src="/redpill.png"
+                    src={`${import.meta.env.BASE_URL}redpill.png`}
                     alt="Red Pill"
                     className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 opacity-0 group-hover:opacity-100 transition-all duration-700 ease-in-out drop-shadow-2xl transform translate-y-4 group-hover:-translate-y-12 group-hover:scale-125"
                     style={{
@@ -212,7 +212,7 @@ export default function Matrix({ onPillChoice }: MatrixProps) {
                   {/* Floating glow halo */}
                   <div className="absolute inset-0 group-hover:animate-pulse">
                     <img
-                      src="/redpill.png"
+                      src={`${import.meta.env.BASE_URL}redpill.png`}
                       alt=""
                       className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 opacity-0 group-hover:opacity-15 transition-all duration-700 ease-in-out absolute"
                       style={{

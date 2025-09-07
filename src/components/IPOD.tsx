@@ -19,8 +19,13 @@ export default function IPOD() {
   useEffect(() => {
     const loadSongs = async () => {
       try {
-        const { songs } = await import('../songManifest');
-        setSongs(songs);
+        const { songs: manifestSongs } = await import('../songManifest');
+        const processedSongs = manifestSongs.map(song => ({
+            ...song,
+            audioSrc: `${import.meta.env.BASE_URL}${song.audioSrc}`,
+            imageSrc: song.imageSrc ? `${import.meta.env.BASE_URL}${song.imageSrc}` : ''
+        }));
+        setSongs(processedSongs);
         setIsLoading(false);
       } catch (error) {
         console.error('Error loading songs:', error);
