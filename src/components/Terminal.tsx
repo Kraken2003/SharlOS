@@ -299,6 +299,8 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
       '',
       'Music commands:',
       '  play        - Play current song',
+      '  play [num]  - Play song by number (e.g., play 1)',
+      '  play [name] - Play song by name (e.g., play time)',
       '  pause       - Pause current song',
       '  next        - Play next song',
       '  prev        - Play previous song',
@@ -308,14 +310,11 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
       'Available songs:',
       ...(songs.length > 0 ? songs.map((song, index) => `  [${index + 1}] ${song.name}`) : ['  No songs loaded']),
       '',
-      'Type "play" to start the music!',
+      'Type "play" to start the music, or "play [number/name]" for specific songs!',
     ],
     play: [
       'Starting music playback...',
-      ...(songs.length > 0 ? [
-        `Now playing: ${songs[currentSongIndex]?.name || 'Unknown'}`,
-        'Use "pause", "next", "prev" to control playback.',
-      ] : ['No songs available. Type "music" to see available songs.']),
+      'This output should not be seen - play command handled dynamically.',
     ],
     pause: [
       'Music paused.',
@@ -336,11 +335,14 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
     list: [
       '=== PLAYLIST ===',
       '',
-      ...(songs.length > 0 ? songs.map((song, index) => 
+      ...(songs.length > 0 ? songs.map((song, index) =>
         `${index === currentSongIndex ? '▶' : ' '} [${index + 1}] ${song.name}${index === currentSongIndex && isPlaying ? ' (NOW PLAYING)' : ''}`
       ) : ['No songs loaded']),
       '',
-      'Use "play [number]" to play a specific song.',
+      'Usage:',
+      '  play [number] - Play by track number (e.g., "play 1")',
+      '  play [name]   - Play by song name (e.g., "play time")',
+      '  play          - Play current/selected song',
     ],
     status: [
       '=== MUSIC STATUS ===',
@@ -488,6 +490,7 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
 
   const handleCommand = async (command: string) => {
     const cmd = command.toLowerCase().trim();
+    let output: string[] = [];
 
     if (cmd === 'clear') {
       // Keep the header message visible when clearing
@@ -504,34 +507,91 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
 
     // Handle music commands
     if (cmd === 'play') {
-      if (audioRef.current && songs.length > 0) {
+      if (songs.length === 0) {
+        output = ['No songs available. Type "music" to see available songs.'];
+      } else if (audioRef.current) {
         audioRef.current.play().catch(console.error);
         setIsPlaying(true);
+        output = [
+          'Starting music playback...',
+          `Now playing: ${songs[currentSongIndex]?.name || 'Unknown'}`,
+          'Use "pause", "next", "prev" to control playback.',
+        ];
       }
     } else if (cmd === 'pause') {
       if (audioRef.current) {
         audioRef.current.pause();
         setIsPlaying(false);
+        output = ['Music paused.', 'Type "play" to resume.'];
       }
     } else if (cmd === 'next') {
-      setCurrentSongIndex((prev) => (prev + 1) % songs.length);
+      if (songs.length === 0) {
+        output = ['No songs available. Type "music" to see available songs.'];
+      } else {
+        const nextIndex = (currentSongIndex + 1) % songs.length;
+        setCurrentSongIndex(nextIndex);
+        output = [
+          'Skipping to next song...',
+          `Now playing: ${songs[nextIndex]?.name || 'Unknown'}`,
+        ];
+      }
     } else if (cmd === 'prev') {
-      setCurrentSongIndex((prev) => (prev - 1 + songs.length) % songs.length);
+      if (songs.length === 0) {
+        output = ['No songs available. Type "music" to see available songs.'];
+      } else {
+        const prevIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+        setCurrentSongIndex(prevIndex);
+        output = [
+          'Skipping to previous song...',
+          `Now playing: ${songs[prevIndex]?.name || 'Unknown'}`,
+        ];
+      }
     } else if (cmd.startsWith('play ')) {
-      const songNum = parseInt(cmd.split(' ')[1]) - 1;
-      if (songNum >= 0 && songNum < songs.length) {
-        setCurrentSongIndex(songNum);
-        if (audioRef.current) {
-          audioRef.current.play().catch(console.error);
-          setIsPlaying(true);
+      const argument = cmd.slice(5).trim(); // Remove 'play ' prefix
+
+      if (songs.length === 0) {
+        output = ['No songs available. Type "music" to see available songs.'];
+      } else {
+        // Try to parse as number first
+        const songNum = parseInt(argument);
+        let targetIndex = -1;
+
+        if (!isNaN(songNum) && songNum >= 1 && songNum <= songs.length) {
+          // Play by number (1-based indexing)
+          targetIndex = songNum - 1;
+        } else {
+          // Try to find by name (case-insensitive partial match)
+          const songName = argument.toLowerCase();
+          targetIndex = songs.findIndex(song =>
+            song.name.toLowerCase().includes(songName)
+          );
+        }
+
+        if (targetIndex >= 0) {
+          setCurrentSongIndex(targetIndex);
+          if (audioRef.current) {
+            audioRef.current.play().catch(console.error);
+            setIsPlaying(true);
+          }
+          output = [
+            `Playing song: ${songs[targetIndex].name}`,
+            'Use "pause", "next", "prev" to control playback.',
+          ];
+        } else {
+          output = [
+            `Song "${argument}" not found.`,
+            'Type "list" to see available songs.',
+            'You can play by number (e.g., "play 1") or by name (e.g., "play time").',
+          ];
         }
       }
-    }
-
-    let output = ['Command not found. Type "help" for available commands.'];
-    
-    if (commands[cmd as keyof typeof commands]) {
-      output = commands[cmd as keyof typeof commands];
+    } else {
+      // Check if it's a built-in command
+      if (commands[cmd as keyof typeof commands]) {
+        output = commands[cmd as keyof typeof commands];
+      } else {
+        output = ['Command not found. Type "help" for available commands.'];
+      }
     }
 
     const newCommand = { input: command, output };
@@ -605,7 +665,7 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
                 <span style={{ color: '#ff6b35' }}>{username || '~'}</span>
                 <span className="text-white">:</span>
                 <span className="text-blue-400">~</span>
-                <span className="text-white">$ </span>
+                <span className="text-white">$&nbsp;</span>
                 <span className="text-green-400">{command.input}</span>
               </div>
             )}
@@ -632,7 +692,7 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
                         line.includes('skills') || line.includes('experience') || line.includes('syntx') ||
                         line.includes('music') || line.includes('contact') || line.includes('whoami') ||
                         line.includes('date') || line.includes('uptime') || line.includes('pwd') ||
-                        line.includes('clear') || line.includes('exit'))) ? '#dc2626' :
+                        line.includes('clear') || line.includes('exit') || line.includes('play'))) ? '#dc2626' :
                         // Command names in help output
                         (/^\s*[a-z]+\s*-/.test(line) && !line.includes('Available commands:') && !line.includes('Type any command')) ? '#dc2626' :
                         '#E0E0E0',
@@ -668,7 +728,7 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
             <span className="text-cyan-400">neural-signature</span>
             <span className="text-white">:</span>
             <span className="text-blue-400">~</span>
-            <span className="text-white">$ </span>
+            <span className="text-white">$&nbsp;</span>
             <input
               ref={inputRef}
               type="text"
@@ -680,7 +740,6 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
               spellCheck={false}
               placeholder="Enter your username..."
             />
-            <span className="animate-pulse text-green-400">█</span>
           </form>
         )}
 
@@ -690,7 +749,7 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
             <span style={{ color: '#ff6b35' }}>{username || '~'}</span>
             <span className="text-white">:</span>
             <span className="text-blue-400">~</span>
-            <span className="text-white">$ </span>
+            <span className="text-white">$&nbsp;</span>
             <input
               ref={inputRef}
               type="text"
@@ -701,7 +760,6 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
               autoFocus
               spellCheck={false}
             />
-            <span className="animate-pulse text-green-400">█</span>
           </form>
         )}
       </div>

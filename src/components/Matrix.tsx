@@ -90,9 +90,9 @@ export default function Matrix({ onPillChoice }: MatrixProps) {
       />
 
       {/* Main Content */}
-      <div className="relative z-30 flex flex-col items-center justify-center min-h-full p-6 sm:p-8">
+      <div className="relative z-30 flex items-center justify-center min-h-screen p-6 sm:p-8">
         {/* Morpheus Image with Pills */}
-        <div className="mb-8 relative">
+        <div className="relative">
           <img
             src="/morpheus.png"
             alt="Morpheus"
@@ -259,39 +259,6 @@ export default function Matrix({ onPillChoice }: MatrixProps) {
           )}
         </div>
 
-        {/* Matrix Text */}
-        <div className="text-center mb-8 max-w-4xl px-4 sm:px-0">
-          <div className="text-green-400 mb-4 overflow-hidden">
-            <div className="text-xs sm:text-sm md:text-base whitespace-nowrap">
-              ╔═══════════════════════════════════════════════════════════════╗
-            </div>
-          </div>
-          <div className="text-green-400 mb-2 overflow-hidden">
-            <div className="text-xs sm:text-sm md:text-base whitespace-nowrap">
-              ║ This is your last chance. After this, there is no going back. ║
-            </div>
-          </div>
-          <div className="text-green-400 mb-4 overflow-hidden">
-            <div className="text-xs sm:text-sm md:text-base whitespace-nowrap">
-              ╚═══════════════════════════════════════════════════════════════╝
-            </div>
-          </div>
-          
-          <div className="space-y-2 mb-8 text-sm sm:text-base">
-            <p className="text-green-300">
-              You take the blue pill - the story ends, you wake up in your bed
-            </p>
-            <p className="text-green-300">
-              and believe whatever you want to believe.
-            </p>
-            <p className="text-red-400 mt-4">
-              You take the red pill - you stay in Wonderland, and I show you
-            </p>
-            <p className="text-red-400">
-              how deep the rabbit hole goes into the world of code.
-            </p>
-          </div>
-        </div>
 
 
       </div>
