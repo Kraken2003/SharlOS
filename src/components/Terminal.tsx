@@ -1255,23 +1255,23 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
 
   return (
     <div
-      className="h-screen bg-black text-green-400 font-mono overflow-hidden"
+      className="h-screen bg-black text-yellow-400 font-mono overflow-hidden"
       onClick={handleTerminalClick}
     >
       <div
         ref={terminalRef}
-        className="h-full overflow-y-auto p-4 scrollbar-thin scrollbar-track-black scrollbar-thumb-green-800"
+        className="h-full overflow-y-auto p-4 scrollbar-thin scrollbar-track-black scrollbar-thumb-yellow-800"
       >
         {/* Terminal Output */}
         {history.map((command, index) => (
           <div key={index} className="mb-2">
             {command.input && (
               <div className="flex">
-                <span style={{ color: '#ff6b35' }}>{username || '~'}</span>
+                <span style={{ color: '#c5003c' }}>{username || '~'}</span>
                 <span className="text-white">:</span>
-                <span className="text-blue-400">~</span>
+                <span className="text-cyan-400">~</span>
                 <span className="text-white">$&nbsp;</span>
-                <span className="text-green-400">{command.input}</span>
+                <span className="text-yellow-400">{command.input}</span>
               </div>
             )}
             {command.output.map((line, lineIndex) => (
@@ -1284,13 +1284,13 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
                         line.includes('██╔██╗██║█████╗░░██║░░██║') ||
                         line.includes('██║╚████║██╔══╝░░██║░░██║') ||
                         line.includes('██║░╚███║███████╗╚█████╔╝') ||
-                        line.includes('╚═╝░░╚══╝╚══════╝░╚════╝░') ? '#FF00FF' :
-                        line.includes('ORANGECAT TECHNOLOGIES') ? '#22c55e' :
-                        line.includes('SYNTX SYSTEM') ? '#22c55e' :
-                        line.includes('Welcome to the Matrix') ? '#22c55e' :
-                        line.includes('╔') || line.includes('╗') || line.includes('║') || line.includes('╚') || line.includes('╝') || line.includes('═') ? '#22c55e' :
-                        line.includes('===') ? '#00FFFF' :
-                        line.includes('•') || line.includes('⚡') || line.includes('🚀') ? '#00FFFF' :
+                        line.includes('╚═╝░░╚══╝╚══════╝░╚════╝░') ? '#c5003c' :
+                        line.includes('ORANGECAT TECHNOLOGIES') ? '#f3e600' :
+                        line.includes('SYNTX SYSTEM') ? '#f3e600' :
+                        line.includes('Welcome to the Matrix') ? '#f3e600' :
+                        line.includes('╔') || line.includes('╗') || line.includes('║') || line.includes('╚') || line.includes('╝') || line.includes('═') ? '#f3e600' :
+                        line.includes('===') ? '#55ead4' :
+                        line.includes('•') || line.includes('⚡') || line.includes('🚀') ? '#55ead4' :
                         // Command lines in help output (any line with " - " that looks like a command description)
                         (line.includes(' - ') &&
                          (line.includes('about') || line.includes('syntx') || line.includes('projects') ||
@@ -1300,15 +1300,15 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
                           line.includes('exit') || line.includes('ls') || line.includes('cd') ||
                           line.includes('mkdir') || line.includes('touch') || line.includes('cat') ||
                           line.includes('echo') || line.includes('rm') || line.includes('curl') ||
-                          line.includes('ping') || line.includes('play'))) ? '#22c55e' :
+                          line.includes('ping') || line.includes('play'))) ? '#f3e600' :
                         // All command description lines (starts with spaces, has command name and dash)
-                        (/^\s+[a-zA-Z0-9\[\]_\s]+\s+-\s+/.test(line) && !line.includes('Available commands:') && !line.includes('Type any command')) ? '#22c55e' :
+                        (/^\s+[a-zA-Z0-9\[\]_\s]+\s+-\s+/.test(line) && !line.includes('Available commands:') && !line.includes('Type any command')) ? '#f3e600' :
                         // Song entries (lines starting with [number] or containing song names)
-                        (/^\s*\[\d+\]/.test(line) || line.includes('Cruel Angel') || line.includes('Dragostea') || line.includes('Duvet') || 
+                        (/^\s*\[\d+\]/.test(line) || line.includes('Cruel Angel') || line.includes('Dragostea') || line.includes('Duvet') ||
                          line.includes('Feel Good') || line.includes('Hacking') || line.includes('Harder') || line.includes('Inner Universe') ||
                          line.includes('Kids') || line.includes('Midnight City') || line.includes('New Gold') || line.includes('Nightcall') ||
-                         line.includes('Rise') || line.includes('Tank') || line.includes('Time Pink Floyd')) ? '#22c55e' :
-                        '#E0E0E0',
+                         line.includes('Rise') || line.includes('Tank') || line.includes('Time Pink Floyd')) ? '#f3e600' :
+                        '#f3e600',
                   fontSize: (line.includes('███╗░░██╗███████╗░█████╗░') ||
                            line.includes('████╗░██║██╔════╝██╔══██╗') ||
                            line.includes('██╔██╗██║█████╗░░██║░░██║') ||
@@ -1320,7 +1320,7 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
                              line.includes('██╔██╗██║█████╗░░██║░░██║') ||
                              line.includes('██║╚████║██╔══╝░░██║░░██║') ||
                              line.includes('██║░╚███║███████╗╚█████╔╝') ||
-                             line.includes('╚═╝░░╚══╝╚══════╝░╚════╝░')) ? '0 0 10px #FF00FF, 0 0 15px #FF00FF' : 'none',
+                             line.includes('╚═╝░░╚══╝╚══════╝░╚════╝░')) ? '0 0 10px #c5003c, 0 0 15px #c5003c' : 'none',
                   fontWeight: (line.includes('███╗░░██╗███████╗░█████╗░') ||
                              line.includes('████╗░██║██╔════╝██╔══██╗') ||
                              line.includes('██╔██╗██║█████╗░░██║░░██║') ||
@@ -1348,7 +1348,7 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
               value={currentInput}
               onChange={(e) => setCurrentInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="flex-1 bg-transparent outline-none text-green-400 caret-green-400"
+              className="flex-1 bg-transparent outline-none text-yellow-400 caret-yellow-400"
               autoFocus
               spellCheck={false}
               placeholder="Enter your username..."
@@ -1359,7 +1359,7 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
         {/* Input Line - Only show after boot sequence completes and not shutting down */}
         {showCliPrompt && !isShuttingDown && (
           <form onSubmit={handleSubmit} className="flex">
-            <span style={{ color: '#ff6b35' }}>{username || '~'}</span>
+            <span style={{ color: '#c5003c' }}>{username || '~'}</span>
             <span className="text-white">:</span>
             <span className="text-blue-400">~</span>
             <span className="text-white">$&nbsp;</span>
@@ -1369,7 +1369,7 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
               value={currentInput}
               onChange={(e) => setCurrentInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="flex-1 bg-transparent outline-none text-green-400 caret-green-400"
+              className="flex-1 bg-transparent outline-none text-yellow-400 caret-yellow-400"
               autoFocus
               spellCheck={false}
             />

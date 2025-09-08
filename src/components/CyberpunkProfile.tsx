@@ -49,9 +49,9 @@ export default function CyberpunkProfile({ onBack }: { onBack?: () => void }) {
   }, []);
 
   const capabilities = [
-    { skill: 'Team Leadership', level: 90, color: '#4444ff' },
-    { skill: 'AI/ML Engineering', level: 95, color: '#ff6b35' },
-    { skill: 'Cloud Architecture', level: 85, color: '#4285f4' },
+    { skill: 'Team Leadership', level: 90, color: '#55ead4' },
+    { skill: 'AI/ML Engineering', level: 95, color: '#c5003c' },
+    { skill: 'Cloud Architecture', level: 85, color: '#55ead4' },
   ];
 
   const predictions = [
@@ -116,7 +116,7 @@ export default function CyberpunkProfile({ onBack }: { onBack?: () => void }) {
       <div className="fixed inset-0 bg-gradient-to-br from-black via-yellow-900/10 to-black"></div>
       <div className="fixed inset-0 opacity-10">
         <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 via-transparent to-cyan-400/20"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,0,0.1),transparent_50%)]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(243,230,0,0.1),transparent_50%)]"></div>
       </div>
       
       {/* Scanlines */}
@@ -127,7 +127,7 @@ export default function CyberpunkProfile({ onBack }: { onBack?: () => void }) {
         {Array.from({ length: 50 }).map((_, i) => (
           <div
             key={i}
-            className="absolute text-xs text-green-400 data-stream"
+            className="absolute text-xs text-yellow-400 data-stream"
             style={{
               left: `${Math.random() * 100}%`,
               animationDelay: `${Math.random() * 4}s`,
@@ -191,7 +191,7 @@ export default function CyberpunkProfile({ onBack }: { onBack?: () => void }) {
                   </div>
                   <div className="flex justify-between">
                     <span>NEURAL_LINK:</span>
-                    <span className="text-green-400">████████░░ 85%</span>
+                    <span className="text-yellow-400">████████░░ 85%</span>
                   </div>
                   <div className="flex justify-between">
                     <span>CREATIVITY:</span>
@@ -327,7 +327,7 @@ export default function CyberpunkProfile({ onBack }: { onBack?: () => void }) {
                             <div className="text-3xl mb-2 text-red-400 animate-pulse drop-shadow-lg">⦿</div>
                             <div className="text-red-400 font-bold">28.6139° N, 77.2090° E</div>
                             <div className="text-cyan-400 text-xs mt-1">New Delhi, India</div>
-                            <div className="text-green-400 text-xs mt-2">LAST_PING: {currentTime.toLocaleTimeString()}</div>
+                            <div className="text-yellow-400 text-xs mt-2">LAST_PING: {currentTime.toLocaleTimeString()}</div>
                           </div>
                         </div>
                         </div>
@@ -345,13 +345,13 @@ export default function CyberpunkProfile({ onBack }: { onBack?: () => void }) {
                             <span className="text-yellow-400 text-sm">{cap.skill}</span>
                             <span className="text-xs" style={{ color: cap.color }}>{cap.level}%</span>
                           </div>
-                          <div className="w-full bg-gray-900 h-3 border border-gray-700">
+                          <div className="w-full bg-black h-3 border border-black">
                             <div 
                               className="h-3 transition-all duration-1000"
                               style={{ 
                                 width: `${cap.level}%`,
                                 backgroundColor: cap.color,
-                                boxShadow: `0 0 15px ${cap.color}, inset 0 0 5px rgba(255,255,255,0.2)`
+                                boxShadow: `0 0 15px ${cap.color}, inset 0 0 5px rgba(243,230,0,0.2)`
                               }}
                             ></div>
                           </div>
@@ -386,7 +386,7 @@ export default function CyberpunkProfile({ onBack }: { onBack?: () => void }) {
                             {/* Timeline dot */}
                             <div className={`w-12 h-12 border-2 flex items-center justify-center text-xs ${
                               job.status === 'CURRENT' 
-                                ? 'border-green-400 bg-green-900/20 text-green-400 animate-pulse' 
+                                ? 'border-yellow-400 bg-yellow-900/20 text-yellow-400 animate-pulse' 
                                 : 'border-yellow-400 bg-yellow-900/20 text-yellow-400'
                             }`}>
                               {job.year.split('-')[0]}
@@ -398,14 +398,14 @@ export default function CyberpunkProfile({ onBack }: { onBack?: () => void }) {
                                 <div>
                                   <h3 className="text-yellow-400">{job.title}</h3>
                                   <div className="text-cyan-400 text-sm">{job.company}</div>
-                                  <div className="text-gray-400 text-xs">{job.location}</div>
+                                  <div className="text-yellow-400/60 text-xs">{job.location}</div>
                                 </div>
                                 <div className="text-right">
                                   <div className="text-xs text-yellow-400">{job.year}</div>
                                   <span className={`text-xs px-2 py-1 border ${
                                     job.status === 'CURRENT' 
-                                      ? 'text-green-400 border-green-400 bg-green-900/20' 
-                                      : 'text-gray-400 border-gray-400 bg-gray-900/20'
+                                      ? 'text-yellow-400 border-yellow-400 bg-yellow-900/20' 
+                                      : 'text-yellow-400/60 border-yellow-400/60 bg-yellow-900/20'
                                   }`}>
                                     {job.status}
                                   </span>
@@ -436,7 +436,7 @@ export default function CyberpunkProfile({ onBack }: { onBack?: () => void }) {
                       <div className="border border-yellow-400/20 p-4 bg-black/50">
                         <div className="flex justify-between items-start mb-3">
                           <h3 className="text-yellow-400">SyntX AI Unplugged Event</h3>
-                          <span className="text-xs text-green-400">Gurugram, India • 2 weeks ago</span>
+                          <span className="text-xs text-yellow-400">Gurugram, India • 2 weeks ago</span>
                         </div>
                         <p className="text-cyan-300 text-sm mb-3">
                           Successfully organized and hosted SyntX AI Unplugged event in Gurugram with 100+ 
@@ -459,7 +459,7 @@ export default function CyberpunkProfile({ onBack }: { onBack?: () => void }) {
                       <div className="border border-red-400/20 p-4 bg-red-900/10">
                         <div className="flex justify-between items-start mb-3">
                           <h3 className="text-red-400">Qualcomm Snapdragon X Launch</h3>
-                          <span className="text-xs text-green-400">Taj Palace, Delhi • 6 months ago</span>
+                          <span className="text-xs text-yellow-400">Taj Palace, Delhi • 6 months ago</span>
                         </div>
                         <p className="text-cyan-300 text-sm mb-3">
                           Showcased Lagrange's offline, on-device AI agentic capabilities at the Snapdragon X 
@@ -491,7 +491,7 @@ export default function CyberpunkProfile({ onBack }: { onBack?: () => void }) {
                           <div className="flex justify-between items-start mb-3">
                             <h3 className="text-yellow-400">{pred.topic}</h3>
                             <div className="text-right">
-                              <div className="text-xs text-green-400">CERTAINTY: {pred.confidence}%</div>
+                              <div className="text-xs text-yellow-400">CERTAINTY: {pred.confidence}%</div>
                               <div className="text-xs text-cyan-400">{pred.timeline}</div>
                             </div>
                           </div>
@@ -501,8 +501,8 @@ export default function CyberpunkProfile({ onBack }: { onBack?: () => void }) {
                               className="h-2 transition-all duration-1000"
                               style={{
                                 width: `${pred.confidence}%`,
-                                background: `linear-gradient(90deg, #ff4444, #ffff00, #00ff00)`,
-                                boxShadow: '0 0 10px rgba(255,255,0,0.5)'
+                                background: `linear-gradient(90deg, #c5003c, #f3e600, #f3e600)`,
+                                boxShadow: '0 0 10px rgba(243,230,0,0.5)'
                               }}
                             ></div>
                           </div>
@@ -530,19 +530,19 @@ export default function CyberpunkProfile({ onBack }: { onBack?: () => void }) {
                           </div>
                           <div className="flex justify-between">
                             <span>LinkedIn:</span>
-                            <span className="text-green-400">linkedin.com/in/prithvichohan</span>
+                            <span className="text-yellow-400">linkedin.com/in/prithvichohan</span>
                           </div>
                           <div className="flex justify-between">
                             <span>GitHub:</span>
-                            <span className="text-green-400">@Kraken2003</span>
+                            <span className="text-yellow-400">@Kraken2003</span>
                           </div>
                           <div className="flex justify-between">
                             <span>SYNTX:</span>
-                            <span className="text-blue-400">syntx.dev</span>
+                            <span className="text-cyan-400">syntx.dev</span>
                           </div>
                           <div className="flex justify-between">
                             <span>ORANGECAT:</span>
-                            <span className="text-purple-400">orangecat.ai</span>
+                            <span className="text-cyan-400">orangecat.ai</span>
                           </div>
                         </div>
                       </div>
