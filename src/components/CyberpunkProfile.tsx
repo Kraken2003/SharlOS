@@ -4,6 +4,7 @@ import TetrisGame from './TetrisGame';
 import PongGame from './PongGame';
 import SpaceInvadersGame from './SpaceInvadersGame';
 import IPOD from './IPOD';
+import { useIsMobile } from './ui/use-mobile';
 
 export default function CyberpunkProfile({ onBack }: { onBack?: () => void }) {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -13,6 +14,7 @@ export default function CyberpunkProfile({ onBack }: { onBack?: () => void }) {
   const [showTetris, setShowTetris] = useState(false);
   const [showPong, setShowPong] = useState(false);
   const [showSpaceInvaders, setShowSpaceInvaders] = useState(false);
+  const isMobile = useIsMobile();
 
   const statusOptions = ['ONLINE', 'CODING', 'BUILDING', 'SHIPPING'];
   
@@ -105,10 +107,10 @@ export default function CyberpunkProfile({ onBack }: { onBack?: () => void }) {
 
   return (
     <div className="min-h-screen bg-black text-yellow-400 font-mono overflow-x-hidden">
-      {/* Games */}
-      {showTetris && <TetrisGame onClose={() => setShowTetris(false)} />}
-      {showPong && <PongGame onClose={() => setShowPong(false)} />}
-      {showSpaceInvaders && <SpaceInvadersGame onClose={() => setShowSpaceInvaders(false)} />}
+      {/* Games - Only render on desktop */}
+      {showTetris && !isMobile && <TetrisGame onClose={() => setShowTetris(false)} />}
+      {showPong && !isMobile && <PongGame onClose={() => setShowPong(false)} />}
+      {showSpaceInvaders && !isMobile && <SpaceInvadersGame onClose={() => setShowSpaceInvaders(false)} />}
 
       {/* Background Effects */}
       <div className="fixed inset-0 bg-gradient-to-br from-black via-yellow-900/10 to-black"></div>
@@ -202,30 +204,32 @@ export default function CyberpunkProfile({ onBack }: { onBack?: () => void }) {
                 </div>
               </div>
 
-              {/* Games Section */}
-              <div className="border border-cyan-400/30 bg-black/80 backdrop-blur-sm p-4">
-                <h3 className="text-cyan-400 mb-3 text-sm">ARCADE.EXE</h3>
-                <div className="space-y-2">
-                  <button
-                    onClick={() => setShowTetris(true)}
-                    className="w-full bg-yellow-400/10 border border-yellow-400/50 p-2 text-yellow-400 hover:bg-yellow-400/20 transition-all text-xs"
-                  >
-                    ▶ TETRIS.EXE
-                  </button>
-                  <button
-                    onClick={() => setShowPong(true)}
-                    className="w-full bg-cyan-400/10 border border-cyan-400/50 p-2 text-cyan-400 hover:bg-cyan-400/20 transition-all text-xs"
-                  >
-                    ▶ PONG.EXE
-                  </button>
-                  <button
-                    onClick={() => setShowSpaceInvaders(true)}
-                    className="w-full bg-red-400/10 border border-red-400/50 p-2 text-red-400 hover:bg-red-400/20 transition-all text-xs"
-                  >
-                    ▶ SPACE_INVADERS.EXE
-                  </button>
+              {/* Games Section - Hidden on Mobile */}
+              {!isMobile && (
+                <div className="border border-cyan-400/30 bg-black/80 backdrop-blur-sm p-4">
+                  <h3 className="text-cyan-400 mb-3 text-sm">ARCADE.EXE</h3>
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => setShowTetris(true)}
+                      className="w-full bg-yellow-400/10 border border-yellow-400/50 p-2 text-yellow-400 hover:bg-yellow-400/20 transition-all text-xs"
+                    >
+                      ▶ TETRIS.EXE
+                    </button>
+                    <button
+                      onClick={() => setShowPong(true)}
+                      className="w-full bg-cyan-400/10 border border-cyan-400/50 p-2 text-cyan-400 hover:bg-cyan-400/20 transition-all text-xs"
+                    >
+                      ▶ PONG.EXE
+                    </button>
+                    <button
+                      onClick={() => setShowSpaceInvaders(true)}
+                      className="w-full bg-red-400/10 border border-red-400/50 p-2 text-red-400 hover:bg-red-400/20 transition-all text-xs"
+                    >
+                      ▶ SPACE_INVADERS.EXE
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Main Content Area */}
