@@ -439,7 +439,7 @@ export default function CyberpunkProfile({ onBack }: { onBack?: () => void }) {
                           <span className="text-xs text-green-400">Gurugram, India • 2 weeks ago</span>
                         </div>
                         <p className="text-cyan-300 text-sm mb-3">
-                          Successfully organized and hosted SyntX AI Unplugged event in Gurugram with 40k+ 
+                          Successfully organized and hosted SyntX AI Unplugged event in Gurugram with 100+ 
                           college students. Featured panel discussions, networking sessions, and showcased 
                           AI innovations. Event exceeded all expectations with incredible energy and collaboration.
                         </p>
@@ -526,14 +526,14 @@ export default function CyberpunkProfile({ onBack }: { onBack?: () => void }) {
                         <div className="space-y-3 text-sm">
                           <div className="flex justify-between">
                             <span>NEURAL_MAIL:</span>
-                            <span className="text-cyan-400">founder@orangecat.ai</span>
+                            <span className="text-cyan-400">prithvi@orangecat.ai</span>
                           </div>
                           <div className="flex justify-between">
-                            <span>ENCRYPTED_LINK:</span>
+                            <span>LinkedIn:</span>
                             <span className="text-green-400">linkedin.com/in/prithvichohan</span>
                           </div>
                           <div className="flex justify-between">
-                            <span>CODE_REPO:</span>
+                            <span>GitHub:</span>
                             <span className="text-green-400">@Kraken2003</span>
                           </div>
                           <div className="flex justify-between">
@@ -550,22 +550,22 @@ export default function CyberpunkProfile({ onBack }: { onBack?: () => void }) {
                       <div className="border border-cyan-400/30 p-4 bg-black/50">
                         <h3 className="text-cyan-400 mb-3">AVAILABILITY_STATUS</h3>
                         <div className="space-y-2 text-xs">
-                          <div>Neural Link: 24/7 (Priority queue)</div>
-                          <div>Business Hours: 09:00-18:00 PST</div>
+                          <div>Neural Link: 12/7 (Priority queue)</div>
+                          <div>Business Hours: 12:00-24:00 IST</div>
                           <div>Emergency Protocol: Signal/Encrypted only</div>
                           <div>Code Review: Async neural processing</div>
-                          <div>Physical Meet: Night City metro only</div>
-                          <div>Response Time: &lt; 2 hours (avg)</div>
+                          <div>Physical Meet: Third Wave, C.P</div>
+                          <div>Response Time: &lt; 24 hours (avg)</div>
                         </div>
                       </div>
 
                       <div className="border border-red-400/30 p-4 md:col-span-2 bg-red-900/10">
                         <h3 className="text-red-400 mb-3">COLLABORATION_MATRIX</h3>
                         <div className="text-sm text-red-300 space-y-2">
-                          <div>• ACCEPTING: Neural consulting, tech co-founding, conference speaking, mentorship</div>
+                          <div>• ACCEPTING: Neural consulting, conference speaking, mentorship</div>
                           <div>• REJECTING: Corporate pyramid schemes, rug-pull crypto, "visionary" partnerships without code</div>
-                          <div>• RATES: ¥500/hour consulting, equity negotiations for long-term neural links</div>
-                          <div>• SECURITY: Military-grade encryption for sensitive data transfers</div>
+                          <div>• RATES: $1000/hour consulting, equity negotiations for long-term neural links</div>
+                          <div>• SECURITY: Standard encryption for sensitive data transfers</div>
                           <div>• WARNING: Automatic ICE deployment against spam/scam attempts</div>
                         </div>
                       </div>
@@ -582,7 +582,7 @@ export default function CyberpunkProfile({ onBack }: { onBack?: () => void }) {
           <div className="container mx-auto text-center text-xs text-yellow-400/60">
             <div className="flex justify-center space-x-8 flex-wrap">
               <span>NEURAL_TIME: {currentTime.toLocaleString()}</span>
-              <span>VERSION: SYNTX_2024.1</span>
+              <span>VERSION: SYNTX_2025.3</span>
               <span>NEURAL_LINK: STABLE</span>
               <span>ENCRYPTION: QUANTUM_AES-512</span>
               <span>ICE: ACTIVE</span>
