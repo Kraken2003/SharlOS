@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import Matrix from './components/Matrix';
 import Terminal from './components/Terminal';
 import CyberpunkProfile from './components/CyberpunkProfile';
+import { useIsMobile } from './components/ui/use-mobile';
 
 type Screen = 'matrix' | 'terminal' | 'cyberpunk';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('matrix');
+  const isMobile = useIsMobile();
 
   // Handle URL routing
   useEffect(() => {
@@ -17,9 +19,14 @@ export default function App() {
     } else if (path === '/bluepill' || path === '/SharlOS/bluepill') {
       setCurrentScreen('cyberpunk');
     } else {
-      setCurrentScreen('matrix');
+      // Default mobile viewers to bluepill route
+      if (isMobile && (path === '/' || path === '/SharlOS' || path === '/SharlOS/')) {
+        setCurrentScreen('cyberpunk');
+      } else {
+        setCurrentScreen('matrix');
+      }
     }
-  }, []);
+  }, [isMobile]);
 
   // Update URL when screen changes
   useEffect(() => {

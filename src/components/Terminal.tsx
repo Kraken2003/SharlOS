@@ -37,9 +37,16 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
   const [awaitingUsername, setAwaitingUsername] = useState(false);
   const [fileSystem, setFileSystem] = useState<FileSystemItem[]>([]);
   const [currentDirectory, setCurrentDirectory] = useState('/home');
+  const [isShuttingDown, setIsShuttingDown] = useState(false);
+  const [bootSoundCompleted, setBootSoundCompleted] = useState(false);
+  const [commandsShown, setCommandsShown] = useState(false);
+  const [currentBootMessages, setCurrentBootMessages] = useState<string[]>([]);
+  const [progressValues, setProgressValues] = useState<Record<string, number>>({});
   const inputRef = useRef<HTMLInputElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const bootSoundRef = useRef<HTMLAudioElement>(null);
+  const shutdownSoundRef = useRef<HTMLAudioElement>(null);
 
   // File system utilities (in-memory only)
   const normalizePath = (base: string, target: string): string => {
@@ -211,15 +218,37 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
     '╚══════════════════════════════════════════════════════════════════╝',
   ];
 
-  const bootSequence = [
-    'Initializing neural interface...',
-    'Establishing secure connection...',
-    'Scanning for available commands...',
-    'Music system detected and ready...',
-    'Firewall protocols activated...',
+  // Generate animated loading indicators
+  const getSpinner = (frame: number) => ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'][frame % 10];
+  const getProgressBar = (progress: number) => '█'.repeat(progress) + '░'.repeat(10 - progress);
+
+  // Static boot sequence for progression (without animations)
+  const staticBootSequence = [
+    'Initializing neural interface... [progress]',
+    'Establishing secure connection... [progress]',
+    'Scanning system for vulnerabilities... [progress]',
+    'Loading device drivers... [progress]',
+    'Synchronizing system clock... [progress]',
+    'Finalizing system configuration... [progress]',
     '',
-    'BOOT COMPLETE: Neural link established',
+    '╔══════════════════════════════════════╗',
+    '║         BOOT COMPLETE                ║',
+    '║     Neural link established          ║',
+    '╚══════════════════════════════════════╝',
   ];
+
+  // Dynamic boot sequence with animations for display
+  const getAnimatedBootSequence = (messages: string[], _frame: number, progress: Record<string, number>) => {
+    return messages.map((message) => {
+      const progressKey = message.split('...')[0];
+      const currentProgress = progress[progressKey] || 0;
+
+      if (message.includes('[progress]')) {
+        return `${progressKey}... [${getProgressBar(currentProgress)}]`;
+      }
+      return message;
+    });
+  };
 
   const commandReference = [
     '',
@@ -532,7 +561,7 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
       ] : ['No songs loaded']),
     ],
     exit: [
-      'Returning to the Matrix...',
+      'Shutting down system...',
       'Goodbye, choom.',
     ],
     ls: [
@@ -606,8 +635,8 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
         const { songs: manifestSongs } = await import('../songManifest');
         const processedSongs = manifestSongs.map(song => ({
             ...song,
-            audioSrc: `${import.meta.env.BASE_URL}${song.audioSrc}`,
-            imageSrc: song.imageSrc ? `${import.meta.env.BASE_URL}${song.imageSrc}` : ''
+            audioSrc: `${(import.meta as any).env.BASE_URL || ''}${song.audioSrc}`,
+            imageSrc: song.imageSrc ? `${(import.meta as any).env.BASE_URL || ''}${song.imageSrc}` : ''
         }));
         setSongs(processedSongs);
         setIsLoading(false);
@@ -620,24 +649,80 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
     loadSongs();
   }, []);
 
+  // Update boot sequence display with animations
+  useEffect(() => {
+    if (currentBootMessages.length > 0) {
+      setHistory(prev => {
+        const animatedMessages = getAnimatedBootSequence(currentBootMessages, 0, progressValues);
+        return [{ input: '', output: [...headerMessage, ...animatedMessages] }];
+      });
+    }
+  }, [currentBootMessages, progressValues]);
+
   // Boot sequence animation
   useEffect(() => {
     if (bootSequenceIndex === 0) {
       // Start with header message (which now includes the ASCII art)
       setHistory([{ input: '', output: headerMessage }]);
+      setCurrentBootMessages([]); // Initialize empty boot messages
+      // Play boot sound and set up completion handler
+      if (bootSoundRef.current) {
+        bootSoundRef.current.play().catch(console.error);
+        bootSoundRef.current.onended = () => {
+          setBootSoundCompleted(true);
+        };
+      } else {
+        // If no boot sound, mark as completed immediately
+        setBootSoundCompleted(true);
+      }
       setBootSequenceIndex(1);
-    } else if (bootSequenceIndex > 0 && bootSequenceIndex <= bootSequence.length) {
+    } else if (bootSequenceIndex > 0 && bootSequenceIndex <= staticBootSequence.length) {
+      // Variable timing based on message type for more realistic boot sequence
+      const getDelay = (index: number) => {
+        if (index === 1) return 0; // First line appears instantly
+        const message = staticBootSequence[index - 1];
+        if (message.includes('BOOT COMPLETE')) return 500;
+        if (message.includes('╔') || message.includes('║') || message.includes('╚')) return 100;
+        if (message === '') return 200; // Empty lines faster
+        if (message.includes('Scanning')) return 4000; // Slower for effect
+        if (message.includes('Finalizing')) return 3500; // Slower for effect
+        return 2500; // Default speed for other progress bars
+      };
+
       const timer = setTimeout(() => {
-        setHistory(prev => {
-          const lastCommand = prev[prev.length - 1];
-          const newOutput = [...lastCommand.output, bootSequence[bootSequenceIndex - 1]];
-          return [{ ...lastCommand, output: newOutput }];
-        });
-        setBootSequenceIndex(prev => prev + 1);
-      }, 800); // 800ms delay between each boot sequence line
+        const newMessage = staticBootSequence[bootSequenceIndex - 1];
+        setCurrentBootMessages(prev => [...prev, newMessage]);
+
+        if (newMessage.includes('[progress]')) {
+          const progressKey = newMessage.split('...')[0];
+          let progress = 0;
+          const progressSpeed = newMessage.includes('Scanning') ? 400 : 
+                               newMessage.includes('Finalizing') ? 350 : 250;
+          
+          const interval = setInterval(() => {
+            progress += 1;
+            setProgressValues(prev => ({ ...prev, [progressKey]: progress }));
+            if (progress >= 10) {
+              clearInterval(interval);
+              // Only advance to next step after progress bar completes for final step
+              if (newMessage.includes('Finalizing')) {
+                setTimeout(() => {
+                  setBootSequenceIndex(prev => prev + 1);
+                }, 500);
+                return;
+              }
+            }
+          }, progressSpeed);
+        }
+
+        // Don't advance immediately for the final progress bar step
+        if (!newMessage.includes('Finalizing') || !newMessage.includes('[progress]')) {
+          setBootSequenceIndex(prev => prev + 1);
+        }
+      }, getDelay(bootSequenceIndex));
 
       return () => clearTimeout(timer);
-    } else if (bootSequenceIndex === bootSequence.length + 1 && !showBootComplete) {
+    } else if (bootSequenceIndex === staticBootSequence.length + 1 && !showBootComplete) {
       // Boot sequence complete, now wait for username input
       const timer = setTimeout(() => {
         setAwaitingUsername(true);
@@ -689,6 +774,24 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
     }
   }, [currentSongIndex, songs, isPlaying]);
 
+  // Handle CLI prompt timing - show only after both username and boot sound are complete
+  useEffect(() => {
+    if (username && bootSoundCompleted && !awaitingUsername && !commandsShown) {
+      // If username was entered before boot sound completed, update history to show commands
+      const welcomeMessage = [
+        ...headerMessage,
+        '',
+        `Neural signature "${username}" registered successfully.`,
+        `Welcome to SyntX Terminal, ${username}!`,
+        '',
+        ...commandReference
+      ];
+      setHistory([{ input: '', output: welcomeMessage }]);
+      setCommandsShown(true);
+      setShowCliPrompt(true);
+    }
+  }, [username, bootSoundCompleted, awaitingUsername, commandsShown]);
+
   useEffect(() => {
     // Auto-scroll to bottom
     if (terminalRef.current) {
@@ -707,8 +810,22 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
     }
 
     if (cmd === 'exit') {
-      if (onBack) {
-        onBack();
+      setIsShuttingDown(true);
+      output = ['Shutting down system...', 'Goodbye, choom.'];
+      
+      // Add the command to history first
+      const newCommand = { input: command, output };
+      setHistory(prev => [...prev, newCommand]);
+      
+      // Play shutdown sound and transition after it completes
+      if (shutdownSoundRef.current && onBack) {
+        shutdownSoundRef.current.play().catch(console.error);
+        shutdownSoundRef.current.onended = () => {
+          onBack();
+        };
+      } else if (onBack) {
+        // Fallback if no shutdown sound
+        setTimeout(() => onBack(), 1000);
       }
       return;
     }
@@ -1100,20 +1217,24 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
 
       setUsername(processedUsername);
       setAwaitingUsername(false);
-      setShowCliPrompt(true);
 
       // Add welcome message with username, keeping header visible
+      // Only show command reference if boot sound has completed
       const welcomeMessage = [
         ...headerMessage,
         '',
         `Neural signature "${processedUsername}" registered successfully.`,
         `Welcome to SyntX Terminal, ${processedUsername}!`,
-        '',
-        ...commandReference
+        ...(bootSoundCompleted ? ['', ...commandReference] : [''])
       ];
 
       setHistory([{ input: '', output: welcomeMessage }]);
       setCurrentInput('');
+
+      if (bootSoundCompleted) {
+        setCommandsShown(true);
+        setShowCliPrompt(true);
+      }
     } else if (currentInput.trim()) {
       handleCommand(currentInput);
       setCurrentInput('');
@@ -1169,7 +1290,6 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
                         line.includes('Welcome to the Matrix') ? '#22c55e' :
                         line.includes('╔') || line.includes('╗') || line.includes('║') || line.includes('╚') || line.includes('╝') || line.includes('═') ? '#22c55e' :
                         line.includes('===') ? '#00FFFF' :
-                        line.includes('█') ? '#FF00FF' :
                         line.includes('•') || line.includes('⚡') || line.includes('🚀') ? '#00FFFF' :
                         // Command lines in help output (any line with " - " that looks like a command description)
                         (line.includes(' - ') &&
@@ -1183,6 +1303,11 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
                           line.includes('ping') || line.includes('play'))) ? '#22c55e' :
                         // All command description lines (starts with spaces, has command name and dash)
                         (/^\s+[a-zA-Z0-9\[\]_\s]+\s+-\s+/.test(line) && !line.includes('Available commands:') && !line.includes('Type any command')) ? '#22c55e' :
+                        // Song entries (lines starting with [number] or containing song names)
+                        (/^\s*\[\d+\]/.test(line) || line.includes('Cruel Angel') || line.includes('Dragostea') || line.includes('Duvet') || 
+                         line.includes('Feel Good') || line.includes('Hacking') || line.includes('Harder') || line.includes('Inner Universe') ||
+                         line.includes('Kids') || line.includes('Midnight City') || line.includes('New Gold') || line.includes('Nightcall') ||
+                         line.includes('Rise') || line.includes('Tank') || line.includes('Time Pink Floyd')) ? '#22c55e' :
                         '#E0E0E0',
                   fontSize: (line.includes('███╗░░██╗███████╗░█████╗░') ||
                            line.includes('████╗░██║██╔════╝██╔══██╗') ||
@@ -1231,8 +1356,8 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
           </form>
         )}
 
-        {/* Input Line - Only show after boot sequence completes */}
-        {showCliPrompt && (
+        {/* Input Line - Only show after boot sequence completes and not shutting down */}
+        {showCliPrompt && !isShuttingDown && (
           <form onSubmit={handleSubmit} className="flex">
             <span style={{ color: '#ff6b35' }}>{username || '~'}</span>
             <span className="text-white">:</span>
@@ -1252,8 +1377,14 @@ export default function Terminal({ onBack }: { onBack?: () => void }) {
         )}
       </div>
       
-      {/* Hidden Audio Element */}
+      {/* Hidden Audio Elements */}
       <audio ref={audioRef} preload="metadata" />
+      <audio ref={bootSoundRef} preload="metadata">
+        <source src={`${(import.meta as any).env.BASE_URL || ''}clisounds/bootsound.mp3`} type="audio/mpeg" />
+      </audio>
+      <audio ref={shutdownSoundRef} preload="metadata">
+        <source src={`${(import.meta as any).env.BASE_URL || ''}clisounds/shutdownsound.mp3`} type="audio/mpeg" />
+      </audio>
     </div>
   );
 }

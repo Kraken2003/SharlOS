@@ -7,11 +7,6 @@ export interface SongManifest {
 
 export const songs: SongManifest[] = [
   {
-    "name": "After Dark - Mr.Kitty",
-    "audioSrc": "audio/After Dark - Mr.Kitty.mp3",
-    "imageSrc": "audio/After Dark - Mr.Kitty.jpg"
-  },
-  {
     "name": "Cruel Angel Thesis",
     "audioSrc": "audio/Cruel Angel Thesis.mp3",
     "imageSrc": "audio/Cruel Angel Thesis.jpg"
@@ -30,11 +25,6 @@ export const songs: SongManifest[] = [
     "name": "Feel Good Inc. - Gorillaz",
     "audioSrc": "audio/Feel Good Inc. - Gorillaz.mp3",
     "imageSrc": "audio/Feel Good Inc. - Gorillaz.jpg"
-  },
-  {
-    "name": "Gimme Gimme - Giga",
-    "audioSrc": "audio/Gimme Gimme - Giga.mp3",
-    "imageSrc": "audio/Gimme Gimme - Giga.jpeg"
   },
   {
     "name": "Hacking to the Gate",
